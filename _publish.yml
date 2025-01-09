@@ -1,0 +1,4 @@
+- source: Dashboard.qmd
+  netlify:
+    - id: e0f0697c-e069-4603-84df-3b0acc516095
+      url: 'https://gage-endline-cr-dashboard.netlify.app'

@@ -1,0 +1,659 @@
+---
+title: "GAGE Endline CR Dashboard"
+format: dashboard
+editor_options: 
+  chunk_output_type: console
+params:
+  form_id: gage_endline_cr_survey
+  sample_size: "inputs/sample_size.rds"
+  starttime: starttime
+  SubmissionDate: SubmissionDate
+  cluster: list_region
+  sub_cluster: list_woreda
+  unique_id: hhid
+  duration: duration
+  gps: geo_back
+  consent: consent
+  consent_yes: 1
+  consent_no: 2
+---
+
+
+
+```{r Setting-survey-credentials}
+
+# Set local file paths for testing locally
+local_gs_token <- "secrets/monitoring-446409-c6231994c3cd.json"
+local_scto_token <- "secrets/scto_auth.txt"
+local_private_token <- "secrets/key.pem"
+
+```
+
+
+
+```{r Loading-packages-and-scripts}
+
+library(googlesheets4)
+library(rsurveycto)
+library(tidyverse)
+library(collapse)
+library(rlang)
+library(checkmate)
+library(glue)
+library(leaflet)
+library(DT)
+library(janitor)
+library(gt)
+library(stringdist)
+
+
+source("scripts/functions.R")
+source("scripts/variables.R")
+```
+
+
+
+```{r Prioritizing-Github-secrets}
+
+# Replace credentials with github tokens
+if(file.exists(local_gs_token)){
+  GSHEET_TOKEN <- local_gs_token
+  } else {
+    GSHEET_TOKEN <- Sys.getenv('GSHEET_TOKEN')
+    }
+
+
+if(file.exists(local_private_token)){
+  PRIVATE_TOKEN <- local_private_token
+  } else {
+    token_text <- Sys.getenv('PRIVATE_TOKEN')
+    write_file(token_text, "PRIVATE_TOKEN.pem")
+    Sys.sleep(3)
+    PRIVATE_TOKEN <- "PRIVATE_TOKEN.pem"
+  }
+
+
+if(file.exists(local_scto_token)){
+  SCTO_TOKEN <- local_scto_token
+  } else {
+    token_text <- Sys.getenv('SCTO_TOKEN')
+    write_file(token_text, "SCTO_TOKEN.txt")
+    Sys.sleep(3)
+    SCTO_TOKEN <- "SCTO_TOKEN.txt"
+  }
+
+```
+
+
+
+
+
+
+```{r Downloading-the-data}
+
+
+sample_size <- readRDS(params$sample_size) %>% 
+  rename(cluster = params$cluster,
+         sub_cluster = params$sub_cluster) %>% 
+  mutate(Sample = fsum(sample_size), .by = cluster)
+
+
+# Avoid downloading for testing locally
+if(!exists("raw_data")){
+  raw_data <- scto_read(
+  auth = scto_auth(SCTO_TOKEN),
+  ids = params$form_id,
+  private_key = PRIVATE_TOKEN
+  )
+}
+
+# Convert variable
+df <- raw_data %>% 
+  # Rename params variables
+  rename(unique_id = params$unique_id,
+         cluster = params$cluster,
+         sub_cluster = params$sub_cluster,
+         consent = params$consent,
+         duration = params$duration,
+         starttime = params$starttime,
+         SubmissionDate = params$SubmissionDate) %>% 
+  # Convert time zone 
+  mutate(starttime = ymd_hms(starttime),
+         starttime = with_tz(starttime, "Africa/Nairobi"),
+         SubmissionDate = ymd_hms(SubmissionDate),
+         SubmissionDate = as_date(with_tz(SubmissionDate, "Africa/Nairobi"))) %>% 
+  #filter(consent == params$consent_yes | consent == params$consent_no) %>% 
+  # Drop refusal if the same id has consented
+  mutate(n = n(), rn = row_number(), .by = unique_id) %>% 
+  filter(!((consent == params$consent_no | is.na(consent)) & 
+            n > 1 & rn > 1)) %>%
+  # Drop duplicates -> another approach can be used to avoid double counting
+  distinct(unique_id, .keep_all = TRUE) %>% 
+  left_join(sample_size, by = c("cluster", "sub_cluster")) %>% 
+  mutate(enumname = str_to_title(
+    if_else(cs_enumname == "-96", cs_enumname_x, cs_enumname_name))) %>% 
+  mutate(Enumerator = sapply(enumname, function(x) {
+    enum_name[which.min(stringdist(x, enum_name, method = "lv"))]
+  }))
+
+```
+
+
+```{r Completion-figures}
+
+total_sample <- fsum(sample_size$sample_size)
+
+Submitted <- fnunique(df$unique_id)
+
+Consented <- fsum(df$consent == params$consent_yes)
+
+Refused <- fsum(df$consent == params$consent_no)
+
+Not_located <- fsum(df$cr_verified == 3)
+
+Clusters <- sort(funique(df$cluster))
+```
+
+
+# Dashboard
+
+##  {height="30%"}
+
+
+###  
+
+
+```{r Total-sample-box}
+#| content: valuebox
+#| title: "Total Sample"
+list(
+  icon = "people-fill",
+  color = "secondary",
+  value = total_sample
+)
+```
+
+### 
+
+```{r Submitted-box}
+#| content: valuebox
+#| title: "Submitted"
+list(
+  icon = "people-fill",
+  color = "info",
+  value = Submitted
+)
+```
+
+### 
+
+```{r Consented-box}
+#| content: valuebox
+#| title: "Consented"
+list(
+  icon = "person-check",
+  color = "success",
+  value = Consented
+)
+```
+
+### 
+
+```{r Refused-box}
+#| content: valuebox
+#| title: "Refused"
+list(
+  icon = "person-x",
+  color = "danger",
+  value = Refused
+)
+```
+
+### 
+
+```{r Not-located-box}
+#| content: valuebox
+#| title: "Unable to locate"
+list(
+  icon = "geo-alt",
+  color = "warning",
+  value = Not_located
+)
+```
+
+
+
+
+##  {.tabset height="70%"}
+
+### Overall
+
+```{r Overall-completion}
+df %>% 
+  summarise(
+    Submitted = n(),
+    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
+    Refused = sum(consent == params$consent_no, na.rm = TRUE),
+    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
+    .by = c(cluster, Sample)
+  ) %>% 
+  rename(Region = cluster) %>% 
+  mutate("% Submitted" = Submitted/Sample,
+         .after = Submitted) %>% 
+  mutate("% Consented" = Consented/Submitted,
+         .after = Consented) %>%
+  mutate("% Refused" = Refused/Submitted,
+         .after = Refused) %>%
+  add_totals(avg = "Duration", pct = list(
+    "% Submitted" = c("Submitted", "Sample"),
+    "% Consented" = c("Consented", "Submitted"),
+    "% Refused" = c("Refused", "Submitted")
+  )) %>% 
+  gt_table() %>% 
+  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
+              decimals = 1)
+```
+
+### `r Clusters[1]`
+
+```{r Afar-completion}
+df %>% 
+  filter(cluster == Clusters[1]) %>% 
+  summarise(
+    Submitted = n(),
+    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
+    Refused = sum(consent == params$consent_no, na.rm = TRUE),
+    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
+    .by = c(sub_cluster, sample_size)
+  ) %>% 
+  rename(Woreda = sub_cluster,
+         Sample = sample_size) %>% 
+  mutate("% Submitted" = Submitted/Sample,
+         .after = Submitted) %>% 
+  mutate("% Consented" = Consented/Submitted,
+         .after = Consented) %>%
+  mutate("% Refused" = Refused/Submitted,
+         .after = Refused) %>%
+  add_totals(avg = "Duration", pct = list(
+    "% Submitted" = c("Submitted", "Sample"),
+    "% Consented" = c("Consented", "Submitted"),
+    "% Refused" = c("Refused", "Submitted")
+  )) %>% 
+  gt_table() %>% 
+  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
+              decimals = 1)
+
+
+```
+
+
+
+
+### `r Clusters[2]`
+
+```{r Amhara-completion}
+df %>% 
+  filter(cluster == Clusters[2]) %>% 
+  summarise(
+    Submitted = n(),
+    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
+    Refused = sum(consent == params$consent_no, na.rm = TRUE),
+    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
+    .by = c(sub_cluster, sample_size)
+  ) %>% 
+  rename(Woreda = sub_cluster,
+         Sample = sample_size) %>% 
+  mutate("% Submitted" = Submitted/Sample,
+         .after = Submitted) %>% 
+  mutate("% Consented" = Consented/Submitted,
+         .after = Consented) %>%
+  mutate("% Refused" = Refused/Submitted,
+         .after = Refused) %>%
+  add_totals(avg = "Duration", pct = list(
+    "% Submitted" = c("Submitted", "Sample"),
+    "% Consented" = c("Consented", "Submitted"),
+    "% Refused" = c("Refused", "Submitted")
+  )) %>% 
+  gt_table() %>% 
+  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
+              decimals = 1)
+```
+
+
+
+### `r Clusters[3]`
+
+```{r Dire-Dawa-completion}
+df %>% 
+  filter(cluster == Clusters[3]) %>% 
+  summarise(
+    Submitted = n(),
+    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
+    Refused = sum(consent == params$consent_no, na.rm = TRUE),
+    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
+    .by = c(sub_cluster, sample_size)
+  ) %>% 
+  rename(Woreda = sub_cluster,
+         Sample = sample_size) %>% 
+  mutate("% Submitted" = Submitted/Sample,
+         .after = Submitted) %>% 
+  mutate("% Consented" = Consented/Submitted,
+         .after = Consented) %>%
+  mutate("% Refused" = Refused/Submitted,
+         .after = Refused) %>%
+  add_totals(avg = "Duration", pct = list(
+    "% Submitted" = c("Submitted", "Sample"),
+    "% Consented" = c("Consented", "Submitted"),
+    "% Refused" = c("Refused", "Submitted")
+  )) %>% 
+  gt_table() %>% 
+  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
+              decimals = 1)
+```
+
+
+
+### `r Clusters[4]`
+
+```{r Oromiya-completion}
+df %>% 
+  filter(cluster == Clusters[4]) %>% 
+  summarise(
+    Submitted = n(),
+    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
+    Refused = sum(consent == params$consent_no, na.rm = TRUE),
+    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
+    .by = c(sub_cluster, sample_size)
+  ) %>% 
+  rename(Woreda = sub_cluster,
+         Sample = sample_size) %>% 
+  mutate("% Submitted" = Submitted/Sample,
+         .after = Submitted) %>% 
+  mutate("% Consented" = Consented/Submitted,
+         .after = Consented) %>%
+  mutate("% Refused" = Refused/Submitted,
+         .after = Refused) %>%
+  add_totals(avg = "Duration", pct = list(
+    "% Submitted" = c("Submitted", "Sample"),
+    "% Consented" = c("Consented", "Submitted"),
+    "% Refused" = c("Refused", "Submitted")
+  )) %>% 
+  gt_table() %>% 
+  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
+              decimals = 1)
+```
+
+
+# Submissions
+
+
+```{r}
+days <- fnunique(df$SubmissionDate)
+submission_perday <- round(Submitted/days)
+estimated_days <- round((days * total_sample)/Submitted, 2)
+left_days <- estimated_days - days
+```
+
+
+##  {height="30%"}
+
+
+### 
+
+```{r Submission-perday}
+#| content: valuebox
+#| title: "Average daily Submission"
+list(
+  icon = "person-up",
+  color = "secondary",
+  value = submission_perday
+)
+```
+
+
+###  
+
+
+```{r Days-into-DC}
+#| content: valuebox
+#| title: "Number of days into DC"
+list(
+  icon = "calendar-check",
+  color = "secondary",
+  value = days
+)
+```
+
+### 
+
+```{r Days-left}
+#| content: valuebox
+#| title: "Estimated days left"
+list(
+  icon = "calendar",
+  color = "secondary",
+  value = left_days
+)
+```
+
+
+### 
+
+```{r Estimated-days}
+#| content: valuebox
+#| title: "Estimated total days"
+list(
+  icon = "calendar3",
+  color = "secondary",
+  value = estimated_days
+)
+```
+
+
+
+##  
+
+
+```{r Afar-submissions}
+filter(df, cluster == Clusters[1]) %>% 
+summarise(n = n(),
+          .by = SubmissionDate) %>% 
+  ggplot() + 
+  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
+  geom_text(aes(x = SubmissionDate, y = n, label = n), 
+            vjust = -0.5, size = 3) + 
+  labs(x = "Date", 
+       y = "Number of submissions",
+       title = str_glue("Submissions per day ({Clusters[1]})")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+
+```
+
+
+```{r Amhara-submissions}
+filter(df, cluster == Clusters[2]) %>% 
+summarise(n = n(),
+          .by = SubmissionDate) %>% 
+  ggplot() + 
+  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
+  geom_text(aes(x = SubmissionDate, y = n, label = n), 
+            vjust = -0.5, size = 3) +
+  labs(x = "Date", 
+       y = "Number of submissions",
+       title = str_glue("Submissions per day ({Clusters[2]})")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+
+```
+
+
+
+```{r Dire-Dawa-submissions}
+filter(df, cluster == Clusters[3]) %>% 
+summarise(n = n(),
+          .by = SubmissionDate) %>% 
+  ggplot() + 
+  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
+  geom_text(aes(x = SubmissionDate, y = n, label = n), 
+            vjust = -0.5, size = 3) + 
+  labs(x = "Date", 
+       y = "Number of submissions",
+       ,
+       title = str_glue("Submissions per day ({Clusters[3]})")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+
+```
+
+
+
+```{r Oromiya-submissions}
+filter(df, cluster == Clusters[4]) %>% 
+summarise(n = n(),
+          .by = SubmissionDate) %>% 
+  ggplot() + 
+  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
+  geom_text(aes(x = SubmissionDate, y = n, label = n), 
+            vjust = -0.5, size = 3) + 
+  labs(x = "Date", 
+       y = "Number of submissions",
+       title = str_glue("Submissions per day ({Clusters[4]})")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+
+```
+
+
+
+# Duration
+
+##
+
+```{r Afar-duration-analysis}
+df %>% 
+  filter(cluster == Clusters[1]) %>% 
+  mutate(Date = as.Date(starttime),
+         Duration = as.numeric(duration)/60) %>% 
+  summarise(Duration = round(mean(Duration, na.rm = TRUE)), .by = Date) %>% 
+  ggplot() + 
+    geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
+              color = "steelblue", method = "loess", formula = 'y ~ x') +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+  expand_limits(y = 0) + 
+  labs(title = str_glue("Average Survey Duration for {Clusters[1]} (Minutes)")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold")) 
+
+```
+
+
+
+```{r Amhara-duration-analysis}
+df %>% 
+  filter(cluster == Clusters[2]) %>% 
+  mutate(Date = as.Date(starttime),
+         Duration = as.numeric(duration)/60) %>% 
+  summarise(Duration = mean(Duration, na.rm = TRUE), .by = Date) %>% 
+  ggplot() + 
+  geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
+              color = "steelblue", method = "loess", formula = 'y ~ x') +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+  expand_limits(y = 0) + 
+  labs(title = str_glue("Average Survey Duration for {Clusters[2]} (Minutes)")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+```
+
+##
+
+```{r Dire-Dawa-duration-analysis}
+df %>% 
+  filter(cluster == Clusters[3]) %>% 
+  mutate(Date = as.Date(starttime),
+         Duration = as.numeric(duration)/60) %>% 
+  summarise(Duration = mean(Duration, na.rm = TRUE), .by = Date) %>% 
+  ggplot() + 
+  geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
+              color = "steelblue", method = "loess", formula = 'y ~ x') +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+  expand_limits(y = 0) + 
+  labs(title = str_glue("Average Survey Duration for {Clusters[3]} (Minutes)")) + 
+  theme_bw()  + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+```
+
+
+
+```{r Oromiya-duration-analysis}
+df %>% 
+  filter(cluster == Clusters[4]) %>% 
+  mutate(Date = as.Date(starttime),
+         Duration = as.numeric(duration)/60) %>% 
+  summarise(Duration = mean(Duration, na.rm = TRUE), .by = Date) %>% 
+  ggplot() + 
+  geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
+              color = "steelblue", method = "loess", formula = 'y ~ x') +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
+  expand_limits(y = 0) + 
+  labs(title = str_glue("Average Survey Duration for {Clusters[4]} (Minutes)")) + 
+  theme_bw() + 
+  theme(plot.title = element_text(color = "steelblue", size = 16, 
+                                  hjust = 0.5, face = "bold"))
+```
+
+
+
+# Enumerators
+
+
+```{r Enumerators}
+df %>% 
+  group_by(Enumerator) %>% 
+  summarise(
+    Submitted = n(),
+    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
+    Refused = sum(consent == params$consent_no, na.rm = TRUE),
+    'Minimum Duration' = round(min(as.numeric(duration), na.rm = TRUE)/60),
+    'Average Duration' = round(mean(as.numeric(duration), na.rm = TRUE)/60),
+    'Maximum Duration' = round(max(as.numeric(duration), na.rm = TRUE)/60)
+
+  ) %>% 
+  add_totals(min = "Minimum Duration",
+             avg = "Average Duration",
+             max = "Maximum Duration") %>% 
+  gt_table()
+
+
+```
+
+
+
+
+# Map
+
+```{r Map}
+df %>% 
+  separate_wider_delim(params$gps, delim = " ",
+                       names = c("lat", "lng", "other1", "other2"),
+                       too_few = "align_end") %>% 
+  mutate(across(c(lat, lng), as.numeric)) %>% 
+  filter(!(is.na(lat) | is.na(lng))) %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  setView(39.5, 9.5, zoom = 6.5) %>% 
+  addMarkers(lng = ~lng, lat = ~lat, label = ~str_glue("{sub_cluster} ({cluster})"))
+```
+
+
