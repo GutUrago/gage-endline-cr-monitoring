@@ -1,6 +1,9 @@
 ---
 title: "GAGE Endline CR Dashboard"
 format: dashboard
+theme:
+  - default
+  - styles.scss
 editor_options: 
   chunk_output_type: console
 params:
@@ -99,13 +102,16 @@ sample_size <- readRDS(params$sample_size) %>%
 
 
 # Avoid downloading for testing locally
-if(!exists("raw_data")){
-  raw_data <- scto_read(
+if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
+  raw_data <- readRDS("secrets/raw_data.rds")
+} else if(!exists("raw_data")) {
+    raw_data <- scto_read(
   auth = scto_auth(SCTO_TOKEN),
   ids = params$form_id,
   private_key = PRIVATE_TOKEN
   )
 }
+
 
 # Convert variable
 df <- raw_data %>% 
@@ -121,7 +127,9 @@ df <- raw_data %>%
   mutate(starttime = ymd_hms(starttime),
          starttime = with_tz(starttime, "Africa/Nairobi"),
          SubmissionDate = ymd_hms(SubmissionDate),
-         SubmissionDate = as_date(with_tz(SubmissionDate, "Africa/Nairobi"))) %>% 
+         SubmissionDate = as_date(with_tz(SubmissionDate, 
+                                          "Africa/Nairobi"))) %>% 
+  arrange(unique_id, consent) %>% 
   #filter(consent == params$consent_yes | consent == params$consent_no) %>% 
   # Drop refusal if the same id has consented
   mutate(n = n(), rn = row_number(), .by = unique_id) %>% 
@@ -150,6 +158,25 @@ Consented <- fsum(df$consent == params$consent_yes)
 Refused <- fsum(df$consent == params$consent_no)
 
 Not_located <- fsum(df$cr_verified == 3)
+
+Submitted_value <- paste0(Submitted, " (", 
+                          round((Submitted/total_sample)*100),
+                          "%)")
+
+
+
+Consented_value <- paste0(Consented, " (", 
+                          round((Consented/Submitted)*100),
+                          "%)")
+
+Refused_value <- paste0(Refused, " (", 
+                          round((Refused/Submitted)*100),
+                          "%)")
+
+Not_located_value <- paste0(Not_located, " (", 
+                          round((Not_located/Submitted)*100),
+                          "%)")
+
 
 Clusters <- sort(funique(df$cluster))
 ```
@@ -181,7 +208,7 @@ list(
 list(
   icon = "people-fill",
   color = "info",
-  value = Submitted
+  value = Submitted_value
 )
 ```
 
@@ -193,7 +220,7 @@ list(
 list(
   icon = "person-check",
   color = "success",
-  value = Consented
+  value = Consented_value
 )
 ```
 
@@ -205,7 +232,7 @@ list(
 list(
   icon = "person-x",
   color = "danger",
-  value = Refused
+  value = Refused_value
 )
 ```
 
@@ -217,7 +244,7 @@ list(
 list(
   icon = "geo-alt",
   color = "warning",
-  value = Not_located
+  value = Not_located_value
 )
 ```
 
@@ -451,10 +478,16 @@ list(
 
 
 
-##  
+##  {.tabset}
+
+### Submissions from `r Clusters[1]` and `r Clusters[2]`
 
 
 ```{r Afar-submissions}
+#| layout-ncol: 2
+
+
+
 filter(df, cluster == Clusters[1]) %>% 
 summarise(n = n(),
           .by = SubmissionDate) %>% 
@@ -470,10 +503,10 @@ summarise(n = n(),
   theme(plot.title = element_text(color = "steelblue", size = 16, 
                                   hjust = 0.5, face = "bold"))
 
-```
 
 
-```{r Amhara-submissions}
+
+
 filter(df, cluster == Clusters[2]) %>% 
 summarise(n = n(),
           .by = SubmissionDate) %>% 
@@ -491,9 +524,12 @@ summarise(n = n(),
 
 ```
 
-
+### Submissions from `r Clusters[3]` and `r Clusters[4]`
 
 ```{r Dire-Dawa-submissions}
+#| layout-ncol: 2
+
+
 filter(df, cluster == Clusters[3]) %>% 
 summarise(n = n(),
           .by = SubmissionDate) %>% 
@@ -510,11 +546,10 @@ summarise(n = n(),
   theme(plot.title = element_text(color = "steelblue", size = 16, 
                                   hjust = 0.5, face = "bold"))
 
-```
 
 
 
-```{r Oromiya-submissions}
+
 filter(df, cluster == Clusters[4]) %>% 
 summarise(n = n(),
           .by = SubmissionDate) %>% 
@@ -644,6 +679,7 @@ df %>%
 # Map
 
 ```{r Map}
+#| title: "The pins on the map show where the enumerators conducted interviews. Hover your mouse over the pin to see the location name."
 df %>% 
   separate_wider_delim(params$gps, delim = " ",
                        names = c("lat", "lng", "other1", "other2"),

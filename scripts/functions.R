@@ -154,8 +154,9 @@ gt_table <- function(
       subtitle = subtitle
     ) |> 
     tab_style(
-      style = cell_text(color = "black", 
-                        weight = "bold"),
+      style = cell_text(color = "steelblue", 
+                        weight = "bold",
+                        font = list('Roboto', 'Helvetica')),
       locations = cells_title(groups = "title")
     ) |> 
     tab_style(

@@ -1,0 +1,37 @@
+/*-- scss:defaults --*/
+
+
+/*-- scss:rules --*/
+.bslib-value-box {
+    .value-box-value {
+      font-size: 0.5rem;
+    }
+    
+    .value-box-showcase {
+      padding: 0.5rem;
+      margin: 0rem;
+    }
+
+    .value-box-showcase .bi {
+      font-size: clamp(0.1em, max(18cqw, 5.2cqh), 5em);
+
+      text-align: center;
+      height: 1em;
+    }
+
+    .value-box-showcase .bi::before {
+      vertical-align: 1em;
+    }
+
+    .value-box-area {
+      margin-top: auto;
+      margin-bottom: auto;
+      padding: 0.5rem;
+      text-align: center;
+    }
+  }
+  
+  
+.bslib-value-box .value-box-value {
+    font-size: 0.5rem;
+}
