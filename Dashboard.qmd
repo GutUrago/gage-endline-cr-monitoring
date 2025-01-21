@@ -1,18 +1,18 @@
 ---
 title: "GAGE Endline CR Dashboard"
 format: dashboard
-theme:
+theme: 
   - default
-  - styles.scss
+  - inputs/styles.scss
 editor_options: 
   chunk_output_type: console
 params:
-  form_id: gage_endline_cr_survey
+  form_id: gage_endline_af_survey
   sample_size: "inputs/sample_size.rds"
-  starttime: starttime
   SubmissionDate: SubmissionDate
-  cluster: list_region
-  sub_cluster: list_woreda
+  admin_1: list_region
+  admin_2: list_zone
+  admin_3: list_woreda
   unique_id: hhid
   duration: duration
   gps: geo_back
@@ -34,23 +34,15 @@ local_private_token <- "secrets/key.pem"
 
 
 
+
 ```{r Loading-packages-and-scripts}
 
-library(googlesheets4)
 library(rsurveycto)
 library(tidyverse)
 library(collapse)
-library(rlang)
-library(checkmate)
-library(glue)
-library(leaflet)
-library(DT)
-library(janitor)
-library(gt)
 library(stringdist)
 
 
-source("scripts/functions.R")
 source("scripts/variables.R")
 ```
 
@@ -91,14 +83,12 @@ if(file.exists(local_scto_token)){
 
 
 
-
 ```{r Downloading-the-data}
 
-
 sample_size <- readRDS(params$sample_size) %>% 
-  rename(cluster = params$cluster,
-         sub_cluster = params$sub_cluster) %>% 
-  mutate(Sample = fsum(sample_size), .by = cluster)
+  rename(admin_1 = params$admin_1,
+         admin_3 = params$admin_3) %>% 
+  mutate(Sample = fsum(sample_size), .by = admin_1)
 
 
 # Avoid downloading for testing locally
@@ -112,540 +102,457 @@ if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
   )
 }
 
-
 # Convert variable
 df <- raw_data %>% 
   # Rename params variables
   rename(unique_id = params$unique_id,
-         cluster = params$cluster,
-         sub_cluster = params$sub_cluster,
+         admin_1 = params$admin_1,
+         admin_2 = params$admin_2,
+         admin_3 = params$admin_3,
          consent = params$consent,
          duration = params$duration,
-         starttime = params$starttime,
          SubmissionDate = params$SubmissionDate) %>% 
   # Convert time zone 
-  mutate(starttime = ymd_hms(starttime),
-         starttime = with_tz(starttime, "Africa/Nairobi"),
-         SubmissionDate = ymd_hms(SubmissionDate),
+  mutate(SubmissionDate = ymd_hms(SubmissionDate),
          SubmissionDate = as_date(with_tz(SubmissionDate, 
-                                          "Africa/Nairobi"))) %>% 
-  arrange(unique_id, consent) %>% 
-  #filter(consent == params$consent_yes | consent == params$consent_no) %>% 
+                                          "Africa/Nairobi")),
+         duration = round(as.numeric(duration)/60)) %>% 
+    arrange(unique_id, consent) %>% 
   # Drop refusal if the same id has consented
   mutate(n = n(), rn = row_number(), .by = unique_id) %>% 
   filter(!((consent == params$consent_no | is.na(consent)) & 
             n > 1 & rn > 1)) %>%
   # Drop duplicates -> another approach can be used to avoid double counting
   distinct(unique_id, .keep_all = TRUE) %>% 
-  left_join(sample_size, by = c("cluster", "sub_cluster")) %>% 
+  left_join(sample_size, by = c("admin_1", "admin_3")) %>% 
   mutate(enumname = str_to_title(
     if_else(cs_enumname == "-96", cs_enumname_x, cs_enumname_name))) %>% 
   mutate(Enumerator = sapply(enumname, function(x) {
     enum_name[which.min(stringdist(x, enum_name, method = "lv"))]
   }))
 
+
 ```
 
 
-```{r Completion-figures}
-
-total_sample <- fsum(sample_size$sample_size)
-
-Submitted <- fnunique(df$unique_id)
-
-Consented <- fsum(df$consent == params$consent_yes)
-
-Refused <- fsum(df$consent == params$consent_no)
-
-Not_located <- fsum(df$cr_verified == 3)
-
-Submitted_value <- paste0(Submitted, " (", 
-                          round((Submitted/total_sample)*100),
-                          "%)")
 
 
-
-Consented_value <- paste0(Consented, " (", 
-                          round((Consented/Submitted)*100),
-                          "%)")
-
-Refused_value <- paste0(Refused, " (", 
-                          round((Refused/Submitted)*100),
-                          "%)")
-
-Not_located_value <- paste0(Not_located, " (", 
-                          round((Not_located/Submitted)*100),
-                          "%)")
+```{r Prepare-OJS-data}
+ojs_data <- df |> 
+  select(unique_id, admin_1, admin_2, admin_3, consent, sample_size, Sample,
+         duration, Enumerator, cr_verified, SubmissionDate)
 
 
-Clusters <- sort(funique(df$cluster))
+geo <- df %>% 
+  separate_wider_delim(params$gps, delim = " ",
+                       names = c("lat", "lng", "other1", "other2"),
+                       too_few = "align_end") %>% 
+  mutate(across(c(lat, lng), as.numeric),
+         cons_ref = if_else(consent == 1, "Consented", "Refused")) %>% 
+  filter(!(is.na(lat) | is.na(lng))) %>% 
+  mutate(label = str_glue("{admin_1} - {admin_3} - {cons_ref}")) |> 
+  select(lng, lat, label)
+
+
+
+ojs_define(geo_data = geo)
+ojs_define(rData = ojs_data)
+
+```
+
+
+
+
+```{ojs}
+//| output: false
+
+// import arquero library
+import { aq, op } from '@uwdata/arquero'
+
+// Register necessary functions for arquero
+aq.addFunction('parse_ymd', d3.timeParse('%Y-%m-%d'), { override: true });
+aq.addFunction('format_date', d3.timeFormat("%b %d, %Y"), { override: true })
+
+// Output table formats
+percentFormat = d => d == 100 ? "100%" : d == Infinity ? "100%" : d == 0 ? "0%" : d.toFixed(1) + "%"
+
+// Data
+data = transpose(rData)
+aqData = aq.from(data)
 ```
 
 
 # Dashboard
 
-##  {height="30%"}
 
 
-###  
+```{ojs}
+//| output: false
+//| label: Dasboard-figures
+
+dashboardAdmin = ['All'].concat(
+    aqData.rollup({ 
+      a: d => op.array_agg_distinct(d.admin_1) 
+    })._data.a[0].sort())
 
 
-```{r Total-sample-box}
-#| content: valuebox
-#| title: "Total Sample"
-list(
-  icon = "people-fill",
-  color = "secondary",
-  value = total_sample
-)
-```
+dashboardGroup = dashPickAdmin == "All" ? "admin_1" : "admin_3"
 
-### 
-
-```{r Submitted-box}
-#| content: valuebox
-#| title: "Submitted"
-list(
-  icon = "people-fill",
-  color = "info",
-  value = Submitted_value
-)
-```
-
-### 
-
-```{r Consented-box}
-#| content: valuebox
-#| title: "Consented"
-list(
-  icon = "person-check",
-  color = "success",
-  value = Consented_value
-)
-```
-
-### 
-
-```{r Refused-box}
-#| content: valuebox
-#| title: "Refused"
-list(
-  icon = "person-x",
-  color = "danger",
-  value = Refused_value
-)
-```
-
-### 
-
-```{r Not-located-box}
-#| content: valuebox
-#| title: "Unable to locate"
-list(
-  icon = "geo-alt",
-  color = "warning",
-  value = Not_located_value
-)
-```
+dashboardData = aqData
+  .params({
+  admin: dashPickAdmin,
+  g: dashboardGroup
+  })
+  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
+  .derive({
+    consented: d => d.consent == 1 ? 1 : 0,
+    refused: d => d.consent == 2 ? 1 : 0,
+    sample: (d, $) => $.g == "admin_1" ? d.Sample : d.sample_size,
+    notLocated: d => d.cr_verified == 3 ? 1 : 0
+  })
 
 
+dashboardTable = dashboardData
+  .groupby(dashboardGroup)
+  .rollup({
+    total: d => op.array_agg_distinct(d.sample),
+    submitted: op.count(),
+    submittedPerc: d => op.count() / op.array_agg_distinct(d.sample) * 100 || 0,
+    consented: d => op.sum(d.consented),
+    consentedPerc: d => (op.sum(d.consented) / op.count())*100 || 0,
+    refused: d => op.sum(d.refused),
+    refusedPerc: d => (op.sum(d.refused) / op.count()) * 100 || 0,
+    duration: d => op.round(op.average(d.duration))
+  })
+  .ungroup()
+
+totalSample = dashboardTable.rollup(
+  {a: d => op.sum(d.total)})._data.a[0].toFixed()
+
+submittedSample = d3.sum(dashboardTable, d => d.submitted)
+  
+submittedValue = submittedSample + " (" + ((submittedSample/totalSample) * 100).toFixed(1) + "%)"
+
+consentedSample = d3.sum(dashboardTable, d => d.consented)
+
+consentedValue = consentedSample + " (" + ((consentedSample/submittedSample) * 100).toFixed(1) + "%)"
+
+refusedSample = d3.sum(dashboardTable, d => d.refused)
+
+refusedValue = refusedSample + " (" + ((refusedSample/submittedSample) * 100).toFixed(1) + "%)"
 
 
-##  {.tabset height="70%"}
+notLocatedSample = d3.sum(dashboardData, d => d.notLocated)
 
-### Overall
-
-```{r Overall-completion}
-df %>% 
-  summarise(
-    Submitted = n(),
-    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
-    Refused = sum(consent == params$consent_no, na.rm = TRUE),
-    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
-    .by = c(cluster, Sample)
-  ) %>% 
-  rename(Region = cluster) %>% 
-  mutate("% Submitted" = Submitted/Sample,
-         .after = Submitted) %>% 
-  mutate("% Consented" = Consented/Submitted,
-         .after = Consented) %>%
-  mutate("% Refused" = Refused/Submitted,
-         .after = Refused) %>%
-  add_totals(avg = "Duration", pct = list(
-    "% Submitted" = c("Submitted", "Sample"),
-    "% Consented" = c("Consented", "Submitted"),
-    "% Refused" = c("Refused", "Submitted")
-  )) %>% 
-  gt_table() %>% 
-  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
-              decimals = 1)
-```
-
-### `r Clusters[1]`
-
-```{r Afar-completion}
-df %>% 
-  filter(cluster == Clusters[1]) %>% 
-  summarise(
-    Submitted = n(),
-    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
-    Refused = sum(consent == params$consent_no, na.rm = TRUE),
-    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
-    .by = c(sub_cluster, sample_size)
-  ) %>% 
-  rename(Woreda = sub_cluster,
-         Sample = sample_size) %>% 
-  mutate("% Submitted" = Submitted/Sample,
-         .after = Submitted) %>% 
-  mutate("% Consented" = Consented/Submitted,
-         .after = Consented) %>%
-  mutate("% Refused" = Refused/Submitted,
-         .after = Refused) %>%
-  add_totals(avg = "Duration", pct = list(
-    "% Submitted" = c("Submitted", "Sample"),
-    "% Consented" = c("Consented", "Submitted"),
-    "% Refused" = c("Refused", "Submitted")
-  )) %>% 
-  gt_table() %>% 
-  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
-              decimals = 1)
-
+notLocatedValue = notLocatedSample + " (" + ((notLocatedSample/submittedSample) * 100).toFixed(1) + "%)"
 
 ```
 
 
+## Valueboxes {height="30%"}
 
 
-### `r Clusters[2]`
+::: {.valuebox icon="people-fill" color="secondary"}
 
-```{r Amhara-completion}
-df %>% 
-  filter(cluster == Clusters[2]) %>% 
-  summarise(
-    Submitted = n(),
-    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
-    Refused = sum(consent == params$consent_no, na.rm = TRUE),
-    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
-    .by = c(sub_cluster, sample_size)
-  ) %>% 
-  rename(Woreda = sub_cluster,
-         Sample = sample_size) %>% 
-  mutate("% Submitted" = Submitted/Sample,
-         .after = Submitted) %>% 
-  mutate("% Consented" = Consented/Submitted,
-         .after = Consented) %>%
-  mutate("% Refused" = Refused/Submitted,
-         .after = Refused) %>%
-  add_totals(avg = "Duration", pct = list(
-    "% Submitted" = c("Submitted", "Sample"),
-    "% Consented" = c("Consented", "Submitted"),
-    "% Refused" = c("Refused", "Submitted")
-  )) %>% 
-  gt_table() %>% 
-  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
-              decimals = 1)
-```
+Total Sample
+
+`{ojs} totalSample`
+:::
+
+::: {.valuebox icon="people-fill" color="info"}
+
+Submitted
+
+`{ojs} submittedValue`
+:::
+
+::: {.valuebox icon="person-check" color="success"}
+
+Consented
+
+`{ojs} consentedValue`
+:::
+
+::: {.valuebox icon="person-x" color="danger"}
+
+Refused
+
+`{ojs} refusedValue`
+:::
+
+::: {.valuebox icon="geo-alt" color="warning"}
+
+Unable to locate
+
+`{ojs} notLocatedValue`
+:::
 
 
+##  Main display {height="70%"}
 
-### `r Clusters[3]`
-
-```{r Dire-Dawa-completion}
-df %>% 
-  filter(cluster == Clusters[3]) %>% 
-  summarise(
-    Submitted = n(),
-    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
-    Refused = sum(consent == params$consent_no, na.rm = TRUE),
-    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
-    .by = c(sub_cluster, sample_size)
-  ) %>% 
-  rename(Woreda = sub_cluster,
-         Sample = sample_size) %>% 
-  mutate("% Submitted" = Submitted/Sample,
-         .after = Submitted) %>% 
-  mutate("% Consented" = Consented/Submitted,
-         .after = Consented) %>%
-  mutate("% Refused" = Refused/Submitted,
-         .after = Refused) %>%
-  add_totals(avg = "Duration", pct = list(
-    "% Submitted" = c("Submitted", "Sample"),
-    "% Consented" = c("Consented", "Submitted"),
-    "% Refused" = c("Refused", "Submitted")
-  )) %>% 
-  gt_table() %>% 
-  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
-              decimals = 1)
-```
+### Sidebar {.sidebar width="15%"}
 
 
 
-### `r Clusters[4]`
+```{ojs}
 
-```{r Oromiya-completion}
-df %>% 
-  filter(cluster == Clusters[4]) %>% 
-  summarise(
-    Submitted = n(),
-    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
-    Refused = sum(consent == params$consent_no, na.rm = TRUE),
-    Duration = round(mean(as.numeric(duration), na.rm = TRUE)/60),
-    .by = c(sub_cluster, sample_size)
-  ) %>% 
-  rename(Woreda = sub_cluster,
-         Sample = sample_size) %>% 
-  mutate("% Submitted" = Submitted/Sample,
-         .after = Submitted) %>% 
-  mutate("% Consented" = Consented/Submitted,
-         .after = Consented) %>%
-  mutate("% Refused" = Refused/Submitted,
-         .after = Refused) %>%
-  add_totals(avg = "Duration", pct = list(
-    "% Submitted" = c("Submitted", "Sample"),
-    "% Consented" = c("Consented", "Submitted"),
-    "% Refused" = c("Refused", "Submitted")
-  )) %>% 
-  gt_table() %>% 
-  fmt_percent(c("% Submitted", "% Consented", "% Refused"), 
-              decimals = 1)
-```
-
-
-# Submissions
-
-
-```{r}
-days <- fnunique(df$SubmissionDate)
-submission_perday <- round(Submitted/days)
-estimated_days <- round((days * total_sample)/Submitted, 2)
-left_days <- estimated_days - days
-```
-
-
-##  {height="30%"}
-
-
-### 
-
-```{r Submission-perday}
-#| content: valuebox
-#| title: "Average daily Submission"
-list(
-  icon = "person-up",
-  color = "secondary",
-  value = submission_perday
-)
-```
-
-
-###  
-
-
-```{r Days-into-DC}
-#| content: valuebox
-#| title: "Number of days into DC"
-list(
-  icon = "calendar-check",
-  color = "secondary",
-  value = days
-)
-```
-
-### 
-
-```{r Days-left}
-#| content: valuebox
-#| title: "Estimated days left"
-list(
-  icon = "calendar",
-  color = "secondary",
-  value = left_days
-)
-```
-
-
-### 
-
-```{r Estimated-days}
-#| content: valuebox
-#| title: "Estimated total days"
-list(
-  icon = "calendar3",
-  color = "secondary",
-  value = estimated_days
+viewof dashPickAdmin = Inputs.select(
+  dashboardAdmin,
+  {
+    value: "",
+    label: "Select a Region",
+    unique: true
+  }
 )
 ```
 
 
 
-##  {.tabset}
+### Main Table
 
-### Submissions from `r Clusters[1]` and `r Clusters[2]`
+```{ojs}
+
+Inputs.table(dashboardTable, {
+  header: {
+    admin_0: "Country",
+    admin_1: "Region",
+    admin_2: "Zone",
+    admin_3: "Woreda",
+    total: "Sample",
+    submitted: "Submitted",
+    submittedPerc: "Submitted (%)",
+    consented: "Consented",
+    consentedPerc: "Consented (%)",
+    refused: "Refused",
+    refusedPerc: "Refused (%)",
+    duration: "Duration"
+  },
+  format: {
+  submittedPerc: percentFormat,
+  consentedPerc: percentFormat,
+  refusedPerc: percentFormat
+}
+})
+```
 
 
-```{r Afar-submissions}
-#| layout-ncol: 2
 
 
 
-filter(df, cluster == Clusters[1]) %>% 
-summarise(n = n(),
-          .by = SubmissionDate) %>% 
-  ggplot() + 
-  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
-  geom_text(aes(x = SubmissionDate, y = n, label = n), 
-            vjust = -0.5, size = 3) + 
-  labs(x = "Date", 
-       y = "Number of submissions",
-       title = str_glue("Submissions per day ({Clusters[1]})")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
+# Progress
 
 
+```{ojs}
+//| output: false
+//| label: Progress-figures
+
+progressGroup = progPickAdmin == "All" ? "admin_1" : "admin_3"
 
 
+progressData = aqData
+  .params({
+  admin: progPickAdmin,
+  g: progressGroup
+  })
+  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
+  .derive({
+    consented: d => d.consent == 1 ? 1 : 0,
+    refused: d => d.consent == 2 ? 1 : 0,
+    sample: (d, $) => $.g == "admin_1" ? d.Sample : d.sample_size
+  })
 
-filter(df, cluster == Clusters[2]) %>% 
-summarise(n = n(),
-          .by = SubmissionDate) %>% 
-  ggplot() + 
-  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
-  geom_text(aes(x = SubmissionDate, y = n, label = n), 
-            vjust = -0.5, size = 3) +
-  labs(x = "Date", 
-       y = "Number of submissions",
-       title = str_glue("Submissions per day ({Clusters[2]})")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
+
+progressTable = progressData
+  .groupby('SubmissionDate')
+  .rollup({
+  Submissions: op.count(),
+  Consented: d => op.sum(d.consented),
+  Refused: d => op.sum(d.refused),
+  Duration: d => op.round(op.average(d.duration))
+  })
+  .ungroup()
+  .orderby(aq.desc('SubmissionDate'))
+  
+sampleSize = progressData
+  .params({
+      admin: progPickAdmin
+  })
+  .derive({sampleAdmin: (d, $) => $.admin == "All" ? d.admin_1 : d.admin_3})
+  .select('sampleAdmin', 'sample')
+  .dedupe()
+  .rollup(
+  {a: d => op.sum(d.sample)})._data.a[0].toFixed()
+nDailySub = (progressData.numRows() / nDaysIntoDC).toFixed()
+nDaysIntoDC = progressData.groupby('SubmissionDate').count().numRows()
+nDaysLeft = nDaysEst - nDaysIntoDC
+nDaysEst = ((nDaysIntoDC * sampleSize)/progressData.numRows()).toFixed()
 
 ```
 
-### Submissions from `r Clusters[3]` and `r Clusters[4]`
-
-```{r Dire-Dawa-submissions}
-#| layout-ncol: 2
 
 
-filter(df, cluster == Clusters[3]) %>% 
-summarise(n = n(),
-          .by = SubmissionDate) %>% 
-  ggplot() + 
-  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
-  geom_text(aes(x = SubmissionDate, y = n, label = n), 
-            vjust = -0.5, size = 3) + 
-  labs(x = "Date", 
-       y = "Number of submissions",
-       ,
-       title = str_glue("Submissions per day ({Clusters[3]})")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
+##  Valueboxes {height="30%"}
 
 
 
 
+::: {.valuebox icon="person-up" color="success"}
 
-filter(df, cluster == Clusters[4]) %>% 
-summarise(n = n(),
-          .by = SubmissionDate) %>% 
-  ggplot() + 
-  geom_col(aes(x = SubmissionDate, y = n), color = "white", fill = "steelblue") +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
-  geom_text(aes(x = SubmissionDate, y = n, label = n), 
-            vjust = -0.5, size = 3) + 
-  labs(x = "Date", 
-       y = "Number of submissions",
-       title = str_glue("Submissions per day ({Clusters[4]})")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
+Average daily submission
 
+`{ojs} nDailySub`
+:::
+
+::: {.valuebox icon="calendar-check" color="info"}
+
+Number days into data collection
+
+`{ojs} nDaysIntoDC`
+:::
+
+::: {.valuebox icon="calendar" color="warning"}
+
+Number of days left
+
+`{ojs} nDaysLeft`
+:::
+
+::: {.valuebox icon="calendar3" color="secondary"}
+
+Estimated total days
+
+`{ojs} nDaysEst`
+:::
+
+
+
+##  Main display {height="70%"}
+
+### Sidebar {.sidebar width="15%"}
+
+
+
+
+```{ojs}
+viewof progPickAdmin = Inputs.select(
+  dashboardAdmin,
+  {
+    value: "",
+    label: "Select a Region",
+    unique: true
+  }
+)
 ```
 
+
+
+
+
+### Main Table
+
+```{ojs}
+// 'Submission Date': d => op.format_date(op.parse_ymd(d.SubmissionDate))
+Inputs.table(progressTable, 
+  {
+    header: {
+        SubmissionDate: "Date"
+}})
+```
 
 
 # Duration
 
-##
 
-```{r Afar-duration-analysis}
-df %>% 
-  filter(cluster == Clusters[1]) %>% 
-  mutate(Date = as.Date(starttime),
-         Duration = as.numeric(duration)/60) %>% 
-  summarise(Duration = round(mean(Duration, na.rm = TRUE)), .by = Date) %>% 
-  ggplot() + 
-    geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
-              color = "steelblue", method = "loess", formula = 'y ~ x') +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
-  expand_limits(y = 0) + 
-  labs(title = str_glue("Average Survey Duration for {Clusters[1]} (Minutes)")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold")) 
+## Sidebar {.sidebar width="15%"}
+
+```{ojs}
+viewof durPickAdmin = Inputs.select(
+  dashboardAdmin,
+  {
+    value: "",
+    label: "Select a Region",
+    unique: true
+  }
+)
+```
+
+
+```{ojs}
+//| output: false
+
+durGroup = durPickAdmin == "All" ? "admin_1" : "admin_3"
+
+
+durData = aqData
+  .params({
+  admin: durPickAdmin
+  })
+  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
+  .filter((d) => d.consent == 1)
+
+
+
+
+durTable = durData
+  .groupby(durGroup)
+  .rollup({
+  Minimum:  d => op.round(op.min(d.duration)),
+  Average: d => op.round(op.average(d.duration)),
+  Maximum: d => op.round(op.max(d.duration))
+})
+
 
 ```
 
 
 
-```{r Amhara-duration-analysis}
-df %>% 
-  filter(cluster == Clusters[2]) %>% 
-  mutate(Date = as.Date(starttime),
-         Duration = as.numeric(duration)/60) %>% 
-  summarise(Duration = mean(Duration, na.rm = TRUE), .by = Date) %>% 
-  ggplot() + 
-  geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
-              color = "steelblue", method = "loess", formula = 'y ~ x') +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
-  expand_limits(y = 0) + 
-  labs(title = str_glue("Average Survey Duration for {Clusters[2]} (Minutes)")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
-```
+## Main Table
 
-##
 
-```{r Dire-Dawa-duration-analysis}
-df %>% 
-  filter(cluster == Clusters[3]) %>% 
-  mutate(Date = as.Date(starttime),
-         Duration = as.numeric(duration)/60) %>% 
-  summarise(Duration = mean(Duration, na.rm = TRUE), .by = Date) %>% 
-  ggplot() + 
-  geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
-              color = "steelblue", method = "loess", formula = 'y ~ x') +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
-  expand_limits(y = 0) + 
-  labs(title = str_glue("Average Survey Duration for {Clusters[3]} (Minutes)")) + 
-  theme_bw()  + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
+```{ojs}
+//| title: 'These figures are computed using only consented surveys'
+Inputs.table(durTable, {
+  header: {
+    admin_0: "Country",
+    admin_1: "Region",
+    admin_2: "Zone",
+    admin_3: "Woreda"
+    }
+})
 ```
 
 
+## Main Table
 
-```{r Oromiya-duration-analysis}
-df %>% 
-  filter(cluster == Clusters[4]) %>% 
-  mutate(Date = as.Date(starttime),
-         Duration = as.numeric(duration)/60) %>% 
-  summarise(Duration = mean(Duration, na.rm = TRUE), .by = Date) %>% 
-  ggplot() + 
-  geom_smooth(aes(x = Date, y = Duration), linewidth = 1, 
-              color = "steelblue", method = "loess", formula = 'y ~ x') +
-  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") + 
-  expand_limits(y = 0) + 
-  labs(title = str_glue("Average Survey Duration for {Clusters[4]} (Minutes)")) + 
-  theme_bw() + 
-  theme(plot.title = element_text(color = "steelblue", size = 16, 
-                                  hjust = 0.5, face = "bold"))
+
+```{ojs}
+//| title: 'Average survey duration for consented surveys by submission date'
+
+Plot.plot({
+  y: {label: "Average survey duration (min)", grid: true },
+  x: {label: 'Submission date', grid: true, labelOffset: -5},
+  color: {
+    range: ["#3ca951", "#ff725c"]
+  },
+  style: {fontSize: "12px"},
+  marks: [
+    Plot.lineY(
+    durData,
+      Plot.binX({ y: "mean" }, { x: (d) => op.parse_ymd(d.SubmissionDate), 
+      y: (d) => op.round(d.duration), tip: true })
+    ),
+        Plot.dot(
+      durData,
+      Plot.binX(
+        { y: "mean", stroke: "mean" },
+        { x: (d) => op.parse_ymd(d.SubmissionDate), 
+        y: (d) => op.round(d.duration), 
+        stroke: (d) => op.round(d.duration), strokeWidth: 8 }
+      )
+    ),
+    Plot.ruleY([30])
+    ]
+})
 ```
 
 
@@ -653,24 +560,61 @@ df %>%
 # Enumerators
 
 
-```{r Enumerators}
-df %>% 
-  group_by(Enumerator) %>% 
-  summarise(
-    Submitted = n(),
-    Consented = sum(consent == params$consent_yes, na.rm = TRUE),
-    Refused = sum(consent == params$consent_no, na.rm = TRUE),
-    'Minimum Duration' = round(min(as.numeric(duration), na.rm = TRUE)/60),
-    'Average Duration' = round(mean(as.numeric(duration), na.rm = TRUE)/60),
-    'Maximum Duration' = round(max(as.numeric(duration), na.rm = TRUE)/60)
 
-  ) %>% 
-  add_totals(min = "Minimum Duration",
-             avg = "Average Duration",
-             max = "Maximum Duration") %>% 
-  gt_table()
+## Sidebar {.sidebar width="15%"}
+
+```{ojs}
+viewof enumPickAdmin = Inputs.select(
+  dashboardAdmin,
+  {
+    value: "",
+    label: "Select a Region",
+    unique: true
+  }
+)
+```
 
 
+```{ojs}
+//| output: false
+
+
+enumTable = aqData
+  .params({
+  admin: enumPickAdmin
+  })
+  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
+  .derive({
+    consented: d => d.consent == 1 ? 1 : 0,
+    refused: d => d.consent == 2 ? 1 : 0,
+  })
+  .groupby('Enumerator')
+  .rollup({
+  Submitted: d => op.count(),
+  Consented: d => op.sum(d.consented),
+  Refused: d => op.sum(d.refused),
+  'Min. Duration':  d => op.round(op.min(d.duration)),
+  'Avg. Duration': d => op.round(op.average(d.duration)),
+  'Max. Duration': d => op.round(op.max(d.duration))
+})
+
+
+```
+
+
+
+## Main Table
+
+
+```{ojs}
+Inputs.table(enumTable, {
+  header: {
+    admin_0: "Country",
+    admin_1: "Region",
+    admin_2: "Zone",
+    admin_3: "Woreda"
+    }
+})
 ```
 
 
@@ -678,18 +622,64 @@ df %>%
 
 # Map
 
-```{r Map}
-#| title: "The pins on the map show where the enumerators conducted interviews. Hover your mouse over the pin to see the location name."
-df %>% 
-  separate_wider_delim(params$gps, delim = " ",
-                       names = c("lat", "lng", "other1", "other2"),
-                       too_few = "align_end") %>% 
-  mutate(across(c(lat, lng), as.numeric)) %>% 
-  filter(!(is.na(lat) | is.na(lng))) %>% 
-  leaflet() %>% 
-  addTiles() %>% 
-  setView(39.5, 9.5, zoom = 6.5) %>% 
-  addMarkers(lng = ~lng, lat = ~lat, label = ~str_glue("{sub_cluster} ({cluster})"))
+
+
+```{ojs}
+
+// Pulling leaflet javaScript and linking required CSS as a link tag
+L = {
+  const L = await require("leaflet@1/dist/leaflet.js");
+  if (!L._style) {
+    const href = await require.resolve("leaflet@1/dist/leaflet.css");
+    document.head.appendChild(L._style = html`<link href=${href} rel=stylesheet>`);
+  }
+  return L;
+}
+
+
+geoData = transpose(geo_data).map((item, index) => ({
+  latitude: item.lat,
+  longitude: item.lng,
+  label: item.label
+}))
+
+
+map = {
+  // You'll often see Leaflet examples initializing a map like L.map('map'),
+  // which tells the library to look for a div with the id 'map' on the page.
+  // In Observable, we instead create a div from scratch in this cell, so it's
+  // completely self-contained. 
+  // Added -px to fit to screen
+  let container = DOM.element('div', { 
+  style: `width:${width}px;height:${width/1.6}px` });
+  
+  // Note that I'm yielding the container pretty early here: this allows the
+  // div to be placed on the page. This is important, because Leaflet uses
+  // the div's .offsetWidth and .offsetHeight to size the map. If I were
+  // to only return the container at the end of this method, Leaflet might
+  // get the wrong idea about the map's size.
+  yield container;
+  
+  // Now we create a map object and add a layer to it.
+  let map = L.map(container).setView([9.5, 40], 6.5);
+  let osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  
+  // Add markers
+   geoData.forEach(row => {
+    L.marker([row.latitude, row.longitude])
+      .addTo(map)
+      .bindTooltip(row.label, { permanent: false, direction: "top" });
+  });
+}
+
 ```
+
+
+
+
+
+
 
 
