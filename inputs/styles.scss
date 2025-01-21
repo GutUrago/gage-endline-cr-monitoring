@@ -8,3 +8,18 @@
 .value-box-value .observablehq {
   font-size: 1.5rem;
 }
+
+
+.value-box-area {
+  text-align: center;
+}
+
+.quarto-dashboard .bslib-value-box .value-box-title {
+    font-size: clamp(.1em, 8cqw, 5em) !important;
+}
+
+.quarto-dashboard .bslib-value-box .value-box-area {
+    font-size: clamp(.1em, 8cqw, 5em) !important;
+}
+
+

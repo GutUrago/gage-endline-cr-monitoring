@@ -400,28 +400,28 @@ nDaysEst = ((nDaysIntoDC * sampleSize)/progressData.numRows()).toFixed()
 
 ::: {.valuebox icon="person-up" color="success"}
 
-Average daily submission
+Avg. survey/day
 
 `{ojs} nDailySub`
 :::
 
 ::: {.valuebox icon="calendar-check" color="info"}
 
-Number days into data collection
+Days into DC
 
 `{ojs} nDaysIntoDC`
 :::
 
 ::: {.valuebox icon="calendar" color="warning"}
 
-Number of days left
+Days left
 
 `{ojs} nDaysLeft`
 :::
 
 ::: {.valuebox icon="calendar3" color="secondary"}
 
-Estimated total days
+Days estimated
 
 `{ojs} nDaysEst`
 :::
