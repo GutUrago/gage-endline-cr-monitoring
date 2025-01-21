@@ -151,7 +151,7 @@ geo <- df %>%
          cons_ref = if_else(consent == 1, "Consented", "Refused")) %>% 
   filter(!(is.na(lat) | is.na(lng))) %>% 
   mutate(label = str_glue("{admin_1} - {admin_3} - {cons_ref}")) |> 
-  select(lng, lat, label)
+  select(admin_1, admin_3, lng, lat, label)
 
 
 
@@ -178,7 +178,9 @@ percentFormat = d => d == 100 ? "100%" : d == Infinity ? "100%" : d == 0 ? "0%" 
 
 // Data
 data = transpose(rData)
+geoData = transpose(geo_data)
 aqData = aq.from(data)
+aqGeoData = aq.from(geoData)
 ```
 
 
@@ -622,7 +624,45 @@ Inputs.table(enumTable, {
 
 # Map
 
+## Sidebar {.sidebar}
 
+
+```{ojs}
+
+viewof pickMapAdmin = Inputs.select(
+    aqData.rollup({ 
+         a: d => op.array_agg_distinct(d.admin_1) 
+        })._data.a[0].sort(),
+    {
+    value: "",
+    label: "Select a Region"
+}
+)
+
+
+```
+
+```{ojs}
+viewof pickMapAdmin3 = Inputs.select(
+    aqGeoData
+    .params({
+  admin: pickMapAdmin
+  })
+  .filter((d, $) => op.includes($.admin, d.admin_1))
+    .rollup({ 
+         a: d => op.array_agg_distinct(d.admin_3) 
+        })._data.a[0].sort(),
+    {
+    value: "",
+    label: "Select a Woreda"
+}
+)
+```
+
+
+
+
+##
 
 ```{ojs}
 
@@ -637,7 +677,9 @@ L = {
 }
 
 
-geoData = transpose(geo_data).map((item, index) => ({
+geoDataMap = geoData
+  .filter((d) => pickMapAdmin == d.admin_1)
+  .filter((d) => pickMapAdmin3 == d.admin_3).map((item, index) => ({
   latitude: item.lat,
   longitude: item.lng,
   label: item.label
@@ -667,7 +709,7 @@ map = {
   }).addTo(map);
   
   // Add markers
-   geoData.forEach(row => {
+   geoDataMap.forEach(row => {
     L.marker([row.latitude, row.longitude])
       .addTo(map)
       .bindTooltip(row.label, { permanent: false, direction: "top" });
