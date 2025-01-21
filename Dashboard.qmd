@@ -7,7 +7,7 @@ theme:
 editor_options: 
   chunk_output_type: console
 params:
-  form_id: gage_endline_af_survey
+  form_id: gage_endline_cr_survey
   sample_size: "inputs/sample_size.rds"
   SubmissionDate: SubmissionDate
   admin_1: list_region
