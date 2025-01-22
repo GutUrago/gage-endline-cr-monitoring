@@ -201,64 +201,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="bslib-grid-item html-fill-item tab-content bslib-grid" data-layout="fill" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
-<div id="dashboard" class="dashboard-page tab-pane show active html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-dashboard">
-<div class="html-fill-item html-fill-container bslib-grid dashboard-sidebar-container" style="display: grid; grid-template-rows: minmax(3em, 30fr) minmax(3em, 70fr); grid-auto-columns: minmax(0, 1fr);">
+<div id="dashboard" class="dashboard-page tab-pane show active html-fill-item html-fill-container dashboard-sidebar-container" data-orientation="rows" aria-labelledby="tab-dashboard">
+<div class="bslib-sidebar-layout html-fill-item sidebar-right html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" style=" --bslib-sidebar-width: 15%" data-bslib-sidebar-border="false" data-bslib-sidebar-border-radius="false"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
 <div id="dasboard-figures" class="cell hidden html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb4" data-startfrom="209" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 208;"><span id="cb4-209"><a href="#cb4-209" aria-hidden="true" tabindex="-1"></a>dashboardAdmin <span class="op">=</span> [<span class="st">'All'</span>]<span class="op">.</span><span class="fu">concat</span>(</span>
-<span id="cb4-210"><a href="#cb4-210" aria-hidden="true" tabindex="-1"></a>    aqData<span class="op">.</span><span class="fu">rollup</span>({ </span>
-<span id="cb4-211"><a href="#cb4-211" aria-hidden="true" tabindex="-1"></a>      <span class="dt">a</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">array_agg_distinct</span>(d<span class="op">.</span><span class="at">admin_1</span>) </span>
-<span id="cb4-212"><a href="#cb4-212" aria-hidden="true" tabindex="-1"></a>    })<span class="op">.</span><span class="at">_data</span><span class="op">.</span><span class="at">a</span>[<span class="dv">0</span>]<span class="op">.</span><span class="fu">sort</span>())</span>
-<span id="cb4-213"><a href="#cb4-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-214"><a href="#cb4-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-215"><a href="#cb4-215" aria-hidden="true" tabindex="-1"></a>dashboardGroup <span class="op">=</span> dashPickAdmin <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="st">"admin_1"</span> <span class="op">:</span> <span class="st">"admin_3"</span></span>
-<span id="cb4-216"><a href="#cb4-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-217"><a href="#cb4-217" aria-hidden="true" tabindex="-1"></a>dashboardData <span class="op">=</span> aqData</span>
-<span id="cb4-218"><a href="#cb4-218" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
-<span id="cb4-219"><a href="#cb4-219" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> dashPickAdmin<span class="op">,</span></span>
-<span id="cb4-220"><a href="#cb4-220" aria-hidden="true" tabindex="-1"></a>  <span class="dt">g</span><span class="op">:</span> dashboardGroup</span>
-<span id="cb4-221"><a href="#cb4-221" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb4-222"><a href="#cb4-222" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
-<span id="cb4-223"><a href="#cb4-223" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({</span>
-<span id="cb4-224"><a href="#cb4-224" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb4-225"><a href="#cb4-225" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">2</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb4-226"><a href="#cb4-226" aria-hidden="true" tabindex="-1"></a>    <span class="dt">sample</span><span class="op">:</span> (d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">g</span> <span class="op">==</span> <span class="st">"admin_1"</span> <span class="op">?</span> d<span class="op">.</span><span class="at">Sample</span> <span class="op">:</span> d<span class="op">.</span><span class="at">sample_size</span><span class="op">,</span></span>
-<span id="cb4-227"><a href="#cb4-227" aria-hidden="true" tabindex="-1"></a>    <span class="dt">notLocated</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">cr_verified</span> <span class="op">==</span> <span class="dv">3</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span></span>
-<span id="cb4-228"><a href="#cb4-228" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb4-229"><a href="#cb4-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-230"><a href="#cb4-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-231"><a href="#cb4-231" aria-hidden="true" tabindex="-1"></a>dashboardTable <span class="op">=</span> dashboardData</span>
-<span id="cb4-232"><a href="#cb4-232" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(dashboardGroup)</span>
-<span id="cb4-233"><a href="#cb4-233" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
-<span id="cb4-234"><a href="#cb4-234" aria-hidden="true" tabindex="-1"></a>    <span class="dt">total</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">array_agg_distinct</span>(d<span class="op">.</span><span class="at">sample</span>)<span class="op">,</span></span>
-<span id="cb4-235"><a href="#cb4-235" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submitted</span><span class="op">:</span> op<span class="op">.</span><span class="fu">count</span>()<span class="op">,</span></span>
-<span id="cb4-236"><a href="#cb4-236" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submittedPerc</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">count</span>() <span class="op">/</span> op<span class="op">.</span><span class="fu">array_agg_distinct</span>(d<span class="op">.</span><span class="at">sample</span>) <span class="op">*</span> <span class="dv">100</span> <span class="op">||</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb4-237"><a href="#cb4-237" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>)<span class="op">,</span></span>
-<span id="cb4-238"><a href="#cb4-238" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consentedPerc</span><span class="op">:</span> d <span class="kw">=&gt;</span> (op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>) <span class="op">/</span> op<span class="op">.</span><span class="fu">count</span>())<span class="op">*</span><span class="dv">100</span> <span class="op">||</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb4-239"><a href="#cb4-239" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>)<span class="op">,</span></span>
-<span id="cb4-240"><a href="#cb4-240" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refusedPerc</span><span class="op">:</span> d <span class="kw">=&gt;</span> (op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>) <span class="op">/</span> op<span class="op">.</span><span class="fu">count</span>()) <span class="op">*</span> <span class="dv">100</span> <span class="op">||</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb4-241"><a href="#cb4-241" aria-hidden="true" tabindex="-1"></a>    <span class="dt">duration</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
-<span id="cb4-242"><a href="#cb4-242" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb4-243"><a href="#cb4-243" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">ungroup</span>()</span>
-<span id="cb4-244"><a href="#cb4-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-245"><a href="#cb4-245" aria-hidden="true" tabindex="-1"></a>totalSample <span class="op">=</span> dashboardTable<span class="op">.</span><span class="fu">rollup</span>(</span>
-<span id="cb4-246"><a href="#cb4-246" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">a</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">total</span>)})<span class="op">.</span><span class="at">_data</span><span class="op">.</span><span class="at">a</span>[<span class="dv">0</span>]<span class="op">.</span><span class="fu">toFixed</span>()</span>
-<span id="cb4-247"><a href="#cb4-247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-248"><a href="#cb4-248" aria-hidden="true" tabindex="-1"></a>submittedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">submitted</span>)</span>
-<span id="cb4-249"><a href="#cb4-249" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb4-250"><a href="#cb4-250" aria-hidden="true" tabindex="-1"></a>submittedValue <span class="op">=</span> submittedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((submittedSample<span class="op">/</span>totalSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span>
-<span id="cb4-251"><a href="#cb4-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-252"><a href="#cb4-252" aria-hidden="true" tabindex="-1"></a>consentedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consented</span>)</span>
-<span id="cb4-253"><a href="#cb4-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-254"><a href="#cb4-254" aria-hidden="true" tabindex="-1"></a>consentedValue <span class="op">=</span> consentedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((consentedSample<span class="op">/</span>submittedSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span>
-<span id="cb4-255"><a href="#cb4-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-256"><a href="#cb4-256" aria-hidden="true" tabindex="-1"></a>refusedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">refused</span>)</span>
-<span id="cb4-257"><a href="#cb4-257" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-258"><a href="#cb4-258" aria-hidden="true" tabindex="-1"></a>refusedValue <span class="op">=</span> refusedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((refusedSample<span class="op">/</span>submittedSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span>
-<span id="cb4-259"><a href="#cb4-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-260"><a href="#cb4-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-261"><a href="#cb4-261" aria-hidden="true" tabindex="-1"></a>notLocatedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardData<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">notLocated</span>)</span>
-<span id="cb4-262"><a href="#cb4-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-263"><a href="#cb4-263" aria-hidden="true" tabindex="-1"></a>notLocatedValue <span class="op">=</span> notLocatedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((notLocatedSample<span class="op">/</span>submittedSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb5" data-startfrom="209" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 208;"><span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a>dashboardAdmin <span class="op">=</span> [<span class="st">'All'</span>]<span class="op">.</span><span class="fu">concat</span>(</span>
+<span id="cb5-210"><a href="#cb5-210" aria-hidden="true" tabindex="-1"></a>    aqData<span class="op">.</span><span class="fu">rollup</span>({ </span>
+<span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a>      <span class="dt">a</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">array_agg_distinct</span>(d<span class="op">.</span><span class="at">admin_1</span>) </span>
+<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a>    })<span class="op">.</span><span class="at">_data</span><span class="op">.</span><span class="at">a</span>[<span class="dv">0</span>]<span class="op">.</span><span class="fu">sort</span>())</span>
+<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-214"><a href="#cb5-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-215"><a href="#cb5-215" aria-hidden="true" tabindex="-1"></a>dashboardGroup <span class="op">=</span> dashPickAdmin <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="st">"admin_1"</span> <span class="op">:</span> <span class="st">"admin_3"</span></span>
+<span id="cb5-216"><a href="#cb5-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-217"><a href="#cb5-217" aria-hidden="true" tabindex="-1"></a>dashboardData <span class="op">=</span> aqData</span>
+<span id="cb5-218"><a href="#cb5-218" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
+<span id="cb5-219"><a href="#cb5-219" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> dashPickAdmin<span class="op">,</span></span>
+<span id="cb5-220"><a href="#cb5-220" aria-hidden="true" tabindex="-1"></a>  <span class="dt">g</span><span class="op">:</span> dashboardGroup</span>
+<span id="cb5-221"><a href="#cb5-221" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb5-222"><a href="#cb5-222" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
+<span id="cb5-223"><a href="#cb5-223" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({</span>
+<span id="cb5-224"><a href="#cb5-224" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-225"><a href="#cb5-225" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">2</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-226"><a href="#cb5-226" aria-hidden="true" tabindex="-1"></a>    <span class="dt">sample</span><span class="op">:</span> (d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">g</span> <span class="op">==</span> <span class="st">"admin_1"</span> <span class="op">?</span> d<span class="op">.</span><span class="at">Sample</span> <span class="op">:</span> d<span class="op">.</span><span class="at">sample_size</span><span class="op">,</span></span>
+<span id="cb5-227"><a href="#cb5-227" aria-hidden="true" tabindex="-1"></a>    <span class="dt">notLocated</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">cr_verified</span> <span class="op">==</span> <span class="dv">3</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span></span>
+<span id="cb5-228"><a href="#cb5-228" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb5-229"><a href="#cb5-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-230"><a href="#cb5-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-231"><a href="#cb5-231" aria-hidden="true" tabindex="-1"></a>dashboardTable <span class="op">=</span> dashboardData</span>
+<span id="cb5-232"><a href="#cb5-232" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(dashboardGroup)</span>
+<span id="cb5-233"><a href="#cb5-233" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
+<span id="cb5-234"><a href="#cb5-234" aria-hidden="true" tabindex="-1"></a>    <span class="dt">total</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">array_agg_distinct</span>(d<span class="op">.</span><span class="at">sample</span>)<span class="op">,</span></span>
+<span id="cb5-235"><a href="#cb5-235" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submitted</span><span class="op">:</span> op<span class="op">.</span><span class="fu">count</span>()<span class="op">,</span></span>
+<span id="cb5-236"><a href="#cb5-236" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submittedPerc</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">count</span>() <span class="op">/</span> op<span class="op">.</span><span class="fu">array_agg_distinct</span>(d<span class="op">.</span><span class="at">sample</span>) <span class="op">*</span> <span class="dv">100</span> <span class="op">||</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-237"><a href="#cb5-237" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>)<span class="op">,</span></span>
+<span id="cb5-238"><a href="#cb5-238" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consentedPerc</span><span class="op">:</span> d <span class="kw">=&gt;</span> (op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>) <span class="op">/</span> op<span class="op">.</span><span class="fu">count</span>())<span class="op">*</span><span class="dv">100</span> <span class="op">||</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-239"><a href="#cb5-239" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>)<span class="op">,</span></span>
+<span id="cb5-240"><a href="#cb5-240" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refusedPerc</span><span class="op">:</span> d <span class="kw">=&gt;</span> (op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>) <span class="op">/</span> op<span class="op">.</span><span class="fu">count</span>()) <span class="op">*</span> <span class="dv">100</span> <span class="op">||</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-241"><a href="#cb5-241" aria-hidden="true" tabindex="-1"></a>    <span class="dt">duration</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
+<span id="cb5-242"><a href="#cb5-242" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb5-243"><a href="#cb5-243" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">ungroup</span>()</span>
+<span id="cb5-244"><a href="#cb5-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-245"><a href="#cb5-245" aria-hidden="true" tabindex="-1"></a>totalSample <span class="op">=</span> dashboardTable<span class="op">.</span><span class="fu">rollup</span>(</span>
+<span id="cb5-246"><a href="#cb5-246" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">a</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">total</span>)})<span class="op">.</span><span class="at">_data</span><span class="op">.</span><span class="at">a</span>[<span class="dv">0</span>]<span class="op">.</span><span class="fu">toFixed</span>()</span>
+<span id="cb5-247"><a href="#cb5-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-248"><a href="#cb5-248" aria-hidden="true" tabindex="-1"></a>submittedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">submitted</span>)</span>
+<span id="cb5-249"><a href="#cb5-249" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-250"><a href="#cb5-250" aria-hidden="true" tabindex="-1"></a>submittedValue <span class="op">=</span> submittedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((submittedSample<span class="op">/</span>totalSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span>
+<span id="cb5-251"><a href="#cb5-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-252"><a href="#cb5-252" aria-hidden="true" tabindex="-1"></a>consentedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consented</span>)</span>
+<span id="cb5-253"><a href="#cb5-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-254"><a href="#cb5-254" aria-hidden="true" tabindex="-1"></a>consentedValue <span class="op">=</span> consentedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((consentedSample<span class="op">/</span>submittedSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span>
+<span id="cb5-255"><a href="#cb5-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-256"><a href="#cb5-256" aria-hidden="true" tabindex="-1"></a>refusedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">refused</span>)</span>
+<span id="cb5-257"><a href="#cb5-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-258"><a href="#cb5-258" aria-hidden="true" tabindex="-1"></a>refusedValue <span class="op">=</span> refusedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((refusedSample<span class="op">/</span>submittedSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span>
+<span id="cb5-259"><a href="#cb5-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-260"><a href="#cb5-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-261"><a href="#cb5-261" aria-hidden="true" tabindex="-1"></a>notLocatedSample <span class="op">=</span> d3<span class="op">.</span><span class="fu">sum</span>(dashboardData<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">notLocated</span>)</span>
+<span id="cb5-262"><a href="#cb5-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-263"><a href="#cb5-263" aria-hidden="true" tabindex="-1"></a>notLocatedValue <span class="op">=</span> notLocatedSample <span class="op">+</span> <span class="st">" ("</span> <span class="op">+</span> ((notLocatedSample<span class="op">/</span>submittedSample) <span class="op">*</span> <span class="dv">100</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>) <span class="op">+</span> <span class="st">"%)"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display hidden html-fill-item html-fill-container">
 <div id="dasboard-figures-1" class="html-fill-item html-fill-container">
 <div id="ojs-cell-2-1" data-nodetype="declaration" class="html-fill-item html-fill-container">
@@ -350,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</div>
+</div><div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 30fr) minmax(3em, 70fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr);
 grid-auto-rows: minmax(0, 1fr);">
 <div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
@@ -435,34 +437,32 @@ Refused
 </div>
 <script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
 </div>
-<div class="bslib-sidebar-layout html-fill-item html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" style=" --bslib-sidebar-width: 15%"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
 grid-auto-rows: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb6" data-startfrom="329" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 328;"><span id="cb6-329"><a href="#cb6-329" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(dashboardTable<span class="op">,</span> {</span>
-<span id="cb6-330"><a href="#cb6-330" aria-hidden="true" tabindex="-1"></a>  <span class="dt">header</span><span class="op">:</span> {</span>
-<span id="cb6-331"><a href="#cb6-331" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_0</span><span class="op">:</span> <span class="st">"Country"</span><span class="op">,</span></span>
-<span id="cb6-332"><a href="#cb6-332" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_1</span><span class="op">:</span> <span class="st">"Region"</span><span class="op">,</span></span>
-<span id="cb6-333"><a href="#cb6-333" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_2</span><span class="op">:</span> <span class="st">"Zone"</span><span class="op">,</span></span>
-<span id="cb6-334"><a href="#cb6-334" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_3</span><span class="op">:</span> <span class="st">"Woreda"</span><span class="op">,</span></span>
-<span id="cb6-335"><a href="#cb6-335" aria-hidden="true" tabindex="-1"></a>    <span class="dt">total</span><span class="op">:</span> <span class="st">"Sample"</span><span class="op">,</span></span>
-<span id="cb6-336"><a href="#cb6-336" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submitted</span><span class="op">:</span> <span class="st">"Submitted"</span><span class="op">,</span></span>
-<span id="cb6-337"><a href="#cb6-337" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submittedPerc</span><span class="op">:</span> <span class="st">"Submitted (%)"</span><span class="op">,</span></span>
-<span id="cb6-338"><a href="#cb6-338" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> <span class="st">"Consented"</span><span class="op">,</span></span>
-<span id="cb6-339"><a href="#cb6-339" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consentedPerc</span><span class="op">:</span> <span class="st">"Consented (%)"</span><span class="op">,</span></span>
-<span id="cb6-340"><a href="#cb6-340" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> <span class="st">"Refused"</span><span class="op">,</span></span>
-<span id="cb6-341"><a href="#cb6-341" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refusedPerc</span><span class="op">:</span> <span class="st">"Refused (%)"</span><span class="op">,</span></span>
-<span id="cb6-342"><a href="#cb6-342" aria-hidden="true" tabindex="-1"></a>    <span class="dt">duration</span><span class="op">:</span> <span class="st">"Duration"</span></span>
-<span id="cb6-343"><a href="#cb6-343" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb6-344"><a href="#cb6-344" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> {</span>
-<span id="cb6-345"><a href="#cb6-345" aria-hidden="true" tabindex="-1"></a>  <span class="dt">submittedPerc</span><span class="op">:</span> percentFormat<span class="op">,</span></span>
-<span id="cb6-346"><a href="#cb6-346" aria-hidden="true" tabindex="-1"></a>  <span class="dt">consentedPerc</span><span class="op">:</span> percentFormat<span class="op">,</span></span>
-<span id="cb6-347"><a href="#cb6-347" aria-hidden="true" tabindex="-1"></a>  <span class="dt">refusedPerc</span><span class="op">:</span> percentFormat</span>
-<span id="cb6-348"><a href="#cb6-348" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb6-349"><a href="#cb6-349" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span></span>
-<span id="cb6-350"><a href="#cb6-350" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb6" data-startfrom="331" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 330;"><span id="cb6-331"><a href="#cb6-331" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(dashboardTable<span class="op">,</span> {</span>
+<span id="cb6-332"><a href="#cb6-332" aria-hidden="true" tabindex="-1"></a>  <span class="dt">header</span><span class="op">:</span> {</span>
+<span id="cb6-333"><a href="#cb6-333" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_0</span><span class="op">:</span> <span class="st">"Country"</span><span class="op">,</span></span>
+<span id="cb6-334"><a href="#cb6-334" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_1</span><span class="op">:</span> <span class="st">"Region"</span><span class="op">,</span></span>
+<span id="cb6-335"><a href="#cb6-335" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_2</span><span class="op">:</span> <span class="st">"Zone"</span><span class="op">,</span></span>
+<span id="cb6-336"><a href="#cb6-336" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_3</span><span class="op">:</span> <span class="st">"Woreda"</span><span class="op">,</span></span>
+<span id="cb6-337"><a href="#cb6-337" aria-hidden="true" tabindex="-1"></a>    <span class="dt">total</span><span class="op">:</span> <span class="st">"Sample"</span><span class="op">,</span></span>
+<span id="cb6-338"><a href="#cb6-338" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submitted</span><span class="op">:</span> <span class="st">"Submitted"</span><span class="op">,</span></span>
+<span id="cb6-339"><a href="#cb6-339" aria-hidden="true" tabindex="-1"></a>    <span class="dt">submittedPerc</span><span class="op">:</span> <span class="st">"Submitted (%)"</span><span class="op">,</span></span>
+<span id="cb6-340"><a href="#cb6-340" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> <span class="st">"Consented"</span><span class="op">,</span></span>
+<span id="cb6-341"><a href="#cb6-341" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consentedPerc</span><span class="op">:</span> <span class="st">"Consented (%)"</span><span class="op">,</span></span>
+<span id="cb6-342"><a href="#cb6-342" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> <span class="st">"Refused"</span><span class="op">,</span></span>
+<span id="cb6-343"><a href="#cb6-343" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refusedPerc</span><span class="op">:</span> <span class="st">"Refused (%)"</span><span class="op">,</span></span>
+<span id="cb6-344"><a href="#cb6-344" aria-hidden="true" tabindex="-1"></a>    <span class="dt">duration</span><span class="op">:</span> <span class="st">"Duration"</span></span>
+<span id="cb6-345"><a href="#cb6-345" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb6-346"><a href="#cb6-346" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> {</span>
+<span id="cb6-347"><a href="#cb6-347" aria-hidden="true" tabindex="-1"></a>  <span class="dt">submittedPerc</span><span class="op">:</span> percentFormat<span class="op">,</span></span>
+<span id="cb6-348"><a href="#cb6-348" aria-hidden="true" tabindex="-1"></a>  <span class="dt">consentedPerc</span><span class="op">:</span> percentFormat<span class="op">,</span></span>
+<span id="cb6-349"><a href="#cb6-349" aria-hidden="true" tabindex="-1"></a>  <span class="dt">refusedPerc</span><span class="op">:</span> percentFormat</span>
+<span id="cb6-350"><a href="#cb6-350" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb6-351"><a href="#cb6-351" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span></span>
+<span id="cb6-352"><a href="#cb6-352" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div id="ojs-cell-4" data-nodetype="expression" class="html-fill-item html-fill-container">
 
@@ -477,15 +477,16 @@ grid-auto-rows: minmax(0, 1fr);">
 </bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
 </div>
 </div>
+</div>
 </div></div><aside id="bslib-sidebar-1" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden" id="cb5" data-startfrom="313" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 312;"><span id="cb5-313"><a href="#cb5-313" aria-hidden="true" tabindex="-1"></a>viewof dashPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb5-314"><a href="#cb5-314" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
-<span id="cb5-315"><a href="#cb5-315" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb5-316"><a href="#cb5-316" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
-<span id="cb5-317"><a href="#cb5-317" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
-<span id="cb5-318"><a href="#cb5-318" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb5-319"><a href="#cb5-319" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-320"><a href="#cb5-320" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="271" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 270;"><span id="cb4-271"><a href="#cb4-271" aria-hidden="true" tabindex="-1"></a>viewof dashPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb4-272"><a href="#cb4-272" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
+<span id="cb4-273"><a href="#cb4-273" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb4-274"><a href="#cb4-274" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
+<span id="cb4-275"><a href="#cb4-275" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
+<span id="cb4-276"><a href="#cb4-276" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb4-277"><a href="#cb4-277" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-278"><a href="#cb4-278" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="declaration">
 
@@ -502,50 +503,51 @@ bslib.Sidebar.initCollapsibleAll()
 </script>
 </div>
 </div>
-</div>
-<div id="progress" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-progress">
-<div class="html-fill-item html-fill-container bslib-grid dashboard-sidebar-container" style="display: grid; grid-template-rows: minmax(3em, 30fr) minmax(3em, 70fr); grid-auto-columns: minmax(0, 1fr);">
+<div id="progress" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container dashboard-sidebar-container" data-orientation="rows" aria-labelledby="tab-progress">
+<div class="bslib-sidebar-layout html-fill-item sidebar-right html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" style=" --bslib-sidebar-width: 15%"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
 <div id="progress-figures" class="cell hidden html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb7" data-startfrom="366" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 365;"><span id="cb7-366"><a href="#cb7-366" aria-hidden="true" tabindex="-1"></a>progressGroup <span class="op">=</span> progPickAdmin <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="st">"admin_1"</span> <span class="op">:</span> <span class="st">"admin_3"</span></span>
-<span id="cb7-367"><a href="#cb7-367" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-368"><a href="#cb7-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-369"><a href="#cb7-369" aria-hidden="true" tabindex="-1"></a>progressData <span class="op">=</span> aqData</span>
-<span id="cb7-370"><a href="#cb7-370" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
-<span id="cb7-371"><a href="#cb7-371" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> progPickAdmin<span class="op">,</span></span>
-<span id="cb7-372"><a href="#cb7-372" aria-hidden="true" tabindex="-1"></a>  <span class="dt">g</span><span class="op">:</span> progressGroup</span>
-<span id="cb7-373"><a href="#cb7-373" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb7-374"><a href="#cb7-374" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
-<span id="cb7-375"><a href="#cb7-375" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({</span>
-<span id="cb7-376"><a href="#cb7-376" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb7-377"><a href="#cb7-377" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">2</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb7-378"><a href="#cb7-378" aria-hidden="true" tabindex="-1"></a>    <span class="dt">sample</span><span class="op">:</span> (d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">g</span> <span class="op">==</span> <span class="st">"admin_1"</span> <span class="op">?</span> d<span class="op">.</span><span class="at">Sample</span> <span class="op">:</span> d<span class="op">.</span><span class="at">sample_size</span></span>
-<span id="cb7-379"><a href="#cb7-379" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb7-380"><a href="#cb7-380" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-381"><a href="#cb7-381" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-382"><a href="#cb7-382" aria-hidden="true" tabindex="-1"></a>progressTable <span class="op">=</span> progressData</span>
-<span id="cb7-383"><a href="#cb7-383" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(<span class="st">'SubmissionDate'</span>)</span>
-<span id="cb7-384"><a href="#cb7-384" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
-<span id="cb7-385"><a href="#cb7-385" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Submissions</span><span class="op">:</span> op<span class="op">.</span><span class="fu">count</span>()<span class="op">,</span></span>
-<span id="cb7-386"><a href="#cb7-386" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>)<span class="op">,</span></span>
-<span id="cb7-387"><a href="#cb7-387" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>)<span class="op">,</span></span>
-<span id="cb7-388"><a href="#cb7-388" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Duration</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
-<span id="cb7-389"><a href="#cb7-389" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb7-390"><a href="#cb7-390" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">ungroup</span>()</span>
-<span id="cb7-391"><a href="#cb7-391" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">orderby</span>(aq<span class="op">.</span><span class="fu">desc</span>(<span class="st">'SubmissionDate'</span>))</span>
-<span id="cb7-392"><a href="#cb7-392" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-393"><a href="#cb7-393" aria-hidden="true" tabindex="-1"></a>sampleSize <span class="op">=</span> progressData</span>
-<span id="cb7-394"><a href="#cb7-394" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
-<span id="cb7-395"><a href="#cb7-395" aria-hidden="true" tabindex="-1"></a>      <span class="dt">admin</span><span class="op">:</span> progPickAdmin</span>
-<span id="cb7-396"><a href="#cb7-396" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb7-397"><a href="#cb7-397" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({<span class="dt">sampleAdmin</span><span class="op">:</span> (d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> d<span class="op">.</span><span class="at">admin_1</span> <span class="op">:</span> d<span class="op">.</span><span class="at">admin_3</span>})</span>
-<span id="cb7-398"><a href="#cb7-398" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">select</span>(<span class="st">'sampleAdmin'</span><span class="op">,</span> <span class="st">'sample'</span>)</span>
-<span id="cb7-399"><a href="#cb7-399" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">dedupe</span>()</span>
-<span id="cb7-400"><a href="#cb7-400" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>(</span>
-<span id="cb7-401"><a href="#cb7-401" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">a</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">sample</span>)})<span class="op">.</span><span class="at">_data</span><span class="op">.</span><span class="at">a</span>[<span class="dv">0</span>]<span class="op">.</span><span class="fu">toFixed</span>()</span>
-<span id="cb7-402"><a href="#cb7-402" aria-hidden="true" tabindex="-1"></a>nDailySub <span class="op">=</span> (progressData<span class="op">.</span><span class="fu">numRows</span>() <span class="op">/</span> nDaysIntoDC)<span class="op">.</span><span class="fu">toFixed</span>()</span>
-<span id="cb7-403"><a href="#cb7-403" aria-hidden="true" tabindex="-1"></a>nDaysIntoDC <span class="op">=</span> progressData<span class="op">.</span><span class="fu">groupby</span>(<span class="st">'SubmissionDate'</span>)<span class="op">.</span><span class="fu">count</span>()<span class="op">.</span><span class="fu">numRows</span>()</span>
-<span id="cb7-404"><a href="#cb7-404" aria-hidden="true" tabindex="-1"></a>nDaysLeft <span class="op">=</span> nDaysEst <span class="op">-</span> nDaysIntoDC</span>
-<span id="cb7-405"><a href="#cb7-405" aria-hidden="true" tabindex="-1"></a>nDaysEst <span class="op">=</span> ((nDaysIntoDC <span class="op">*</span> sampleSize)<span class="op">/</span>progressData<span class="op">.</span><span class="fu">numRows</span>())<span class="op">.</span><span class="fu">toFixed</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb8" data-startfrom="368" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 367;"><span id="cb8-368"><a href="#cb8-368" aria-hidden="true" tabindex="-1"></a>progressGroup <span class="op">=</span> progPickAdmin <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="st">"admin_1"</span> <span class="op">:</span> <span class="st">"admin_3"</span></span>
+<span id="cb8-369"><a href="#cb8-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-370"><a href="#cb8-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-371"><a href="#cb8-371" aria-hidden="true" tabindex="-1"></a>progressData <span class="op">=</span> aqData</span>
+<span id="cb8-372"><a href="#cb8-372" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
+<span id="cb8-373"><a href="#cb8-373" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> progPickAdmin<span class="op">,</span></span>
+<span id="cb8-374"><a href="#cb8-374" aria-hidden="true" tabindex="-1"></a>  <span class="dt">g</span><span class="op">:</span> progressGroup</span>
+<span id="cb8-375"><a href="#cb8-375" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb8-376"><a href="#cb8-376" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
+<span id="cb8-377"><a href="#cb8-377" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({</span>
+<span id="cb8-378"><a href="#cb8-378" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-379"><a href="#cb8-379" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">2</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb8-380"><a href="#cb8-380" aria-hidden="true" tabindex="-1"></a>    <span class="dt">sample</span><span class="op">:</span> (d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">g</span> <span class="op">==</span> <span class="st">"admin_1"</span> <span class="op">?</span> d<span class="op">.</span><span class="at">Sample</span> <span class="op">:</span> d<span class="op">.</span><span class="at">sample_size</span></span>
+<span id="cb8-381"><a href="#cb8-381" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb8-382"><a href="#cb8-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-383"><a href="#cb8-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-384"><a href="#cb8-384" aria-hidden="true" tabindex="-1"></a>progressTable <span class="op">=</span> progressData</span>
+<span id="cb8-385"><a href="#cb8-385" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(<span class="st">'SubmissionDate'</span>)</span>
+<span id="cb8-386"><a href="#cb8-386" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
+<span id="cb8-387"><a href="#cb8-387" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Submissions</span><span class="op">:</span> op<span class="op">.</span><span class="fu">count</span>()<span class="op">,</span></span>
+<span id="cb8-388"><a href="#cb8-388" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>)<span class="op">,</span></span>
+<span id="cb8-389"><a href="#cb8-389" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>)<span class="op">,</span></span>
+<span id="cb8-390"><a href="#cb8-390" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Duration</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
+<span id="cb8-391"><a href="#cb8-391" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb8-392"><a href="#cb8-392" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">ungroup</span>()</span>
+<span id="cb8-393"><a href="#cb8-393" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">orderby</span>(aq<span class="op">.</span><span class="fu">desc</span>(<span class="st">'SubmissionDate'</span>))</span>
+<span id="cb8-394"><a href="#cb8-394" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-395"><a href="#cb8-395" aria-hidden="true" tabindex="-1"></a>sampleSize <span class="op">=</span> progressData</span>
+<span id="cb8-396"><a href="#cb8-396" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
+<span id="cb8-397"><a href="#cb8-397" aria-hidden="true" tabindex="-1"></a>      <span class="dt">admin</span><span class="op">:</span> progPickAdmin</span>
+<span id="cb8-398"><a href="#cb8-398" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb8-399"><a href="#cb8-399" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({<span class="dt">sampleAdmin</span><span class="op">:</span> (d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> d<span class="op">.</span><span class="at">admin_1</span> <span class="op">:</span> d<span class="op">.</span><span class="at">admin_3</span>})</span>
+<span id="cb8-400"><a href="#cb8-400" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">select</span>(<span class="st">'sampleAdmin'</span><span class="op">,</span> <span class="st">'sample'</span>)</span>
+<span id="cb8-401"><a href="#cb8-401" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">dedupe</span>()</span>
+<span id="cb8-402"><a href="#cb8-402" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>(</span>
+<span id="cb8-403"><a href="#cb8-403" aria-hidden="true" tabindex="-1"></a>  {<span class="dt">a</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">sample</span>)})<span class="op">.</span><span class="at">_data</span><span class="op">.</span><span class="at">a</span>[<span class="dv">0</span>]<span class="op">.</span><span class="fu">toFixed</span>()</span>
+<span id="cb8-404"><a href="#cb8-404" aria-hidden="true" tabindex="-1"></a>nDailySub <span class="op">=</span> (progressData<span class="op">.</span><span class="fu">numRows</span>() <span class="op">/</span> nDaysIntoDC)<span class="op">.</span><span class="fu">toFixed</span>()</span>
+<span id="cb8-405"><a href="#cb8-405" aria-hidden="true" tabindex="-1"></a>nDaysIntoDC <span class="op">=</span> progressData<span class="op">.</span><span class="fu">groupby</span>(<span class="st">'SubmissionDate'</span>)<span class="op">.</span><span class="fu">count</span>()<span class="op">.</span><span class="fu">numRows</span>()</span>
+<span id="cb8-406"><a href="#cb8-406" aria-hidden="true" tabindex="-1"></a>nDaysLeft <span class="op">=</span> nDaysEst <span class="op">-</span> nDaysIntoDC</span>
+<span id="cb8-407"><a href="#cb8-407" aria-hidden="true" tabindex="-1"></a>nDaysEst <span class="op">=</span> ((nDaysIntoDC <span class="op">*</span> sampleSize)<span class="op">/</span>progressData<span class="op">.</span><span class="fu">numRows</span>())<span class="op">.</span><span class="fu">toFixed</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display hidden html-fill-item html-fill-container">
 <div id="progress-figures-1" class="html-fill-item html-fill-container">
 <div id="ojs-cell-5-1" data-nodetype="declaration" class="html-fill-item html-fill-container">
@@ -602,9 +604,7 @@ bslib.Sidebar.initCollapsibleAll()
 </div>
 </div>
 </div>
-</div>
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr);
-grid-auto-rows: minmax(0, 1fr);">
+</div><div class="html-fill-item html-fill-container bslib-grid" data-height="30%" style="display: grid; grid-template-rows: minmax(3em, 7.5fr) minmax(3em, 7.5fr) minmax(3em, 7.5fr) minmax(3em, 7.5fr) minmax(3em, 70fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-success showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container value-box-grid">
@@ -621,7 +621,8 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div>
-<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-info showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+<div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-info showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container value-box-grid">
 <div class="value-box-showcase html-fill-item html-fill-container">
@@ -637,7 +638,8 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div>
-<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-warning showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+<div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-warning showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container value-box-grid">
 <div class="value-box-showcase html-fill-item html-fill-container">
@@ -653,7 +655,8 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div>
-<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+<div class="card valuebox html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container value-box-grid">
 <div class="value-box-showcase html-fill-item html-fill-container">
@@ -670,21 +673,18 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 <script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
-</div>
-<div class="bslib-sidebar-layout html-fill-item html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" style=" --bslib-sidebar-width: 15%"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
 grid-auto-rows: minmax(0, 1fr);">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb9" data-startfrom="470" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 469;"><span id="cb9-470"><a href="#cb9-470" aria-hidden="true" tabindex="-1"></a><span class="co">// 'Submission Date': d =&gt; op.format_date(op.parse_ymd(d.SubmissionDate))</span></span>
-<span id="cb9-471"><a href="#cb9-471" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(progressTable<span class="op">,</span> </span>
-<span id="cb9-472"><a href="#cb9-472" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb9-473"><a href="#cb9-473" aria-hidden="true" tabindex="-1"></a>    <span class="dt">header</span><span class="op">:</span> {</span>
-<span id="cb9-474"><a href="#cb9-474" aria-hidden="true" tabindex="-1"></a>        <span class="dt">SubmissionDate</span><span class="op">:</span> <span class="st">"Date"</span></span>
-<span id="cb9-475"><a href="#cb9-475" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb9-476"><a href="#cb9-476" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span></span>
-<span id="cb9-477"><a href="#cb9-477" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb9" data-startfrom="471" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 470;"><span id="cb9-471"><a href="#cb9-471" aria-hidden="true" tabindex="-1"></a><span class="co">// 'Submission Date': d =&gt; op.format_date(op.parse_ymd(d.SubmissionDate))</span></span>
+<span id="cb9-472"><a href="#cb9-472" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(progressTable<span class="op">,</span> </span>
+<span id="cb9-473"><a href="#cb9-473" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb9-474"><a href="#cb9-474" aria-hidden="true" tabindex="-1"></a>    <span class="dt">header</span><span class="op">:</span> {</span>
+<span id="cb9-475"><a href="#cb9-475" aria-hidden="true" tabindex="-1"></a>        <span class="dt">SubmissionDate</span><span class="op">:</span> <span class="st">"Date"</span></span>
+<span id="cb9-476"><a href="#cb9-476" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb9-477"><a href="#cb9-477" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span></span>
+<span id="cb9-478"><a href="#cb9-478" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div id="ojs-cell-7" data-nodetype="expression" class="html-fill-item html-fill-container">
 
@@ -699,15 +699,16 @@ grid-auto-rows: minmax(0, 1fr);">
 </bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
 </div>
 </div>
+</div>
 </div></div><aside id="bslib-sidebar-2" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden" id="cb8" data-startfrom="453" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 452;"><span id="cb8-453"><a href="#cb8-453" aria-hidden="true" tabindex="-1"></a>viewof progPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb8-454"><a href="#cb8-454" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
-<span id="cb8-455"><a href="#cb8-455" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb8-456"><a href="#cb8-456" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
-<span id="cb8-457"><a href="#cb8-457" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
-<span id="cb8-458"><a href="#cb8-458" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb8-459"><a href="#cb8-459" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-460"><a href="#cb8-460" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="417" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 416;"><span id="cb7-417"><a href="#cb7-417" aria-hidden="true" tabindex="-1"></a>viewof progPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb7-418"><a href="#cb7-418" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
+<span id="cb7-419"><a href="#cb7-419" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb7-420"><a href="#cb7-420" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
+<span id="cb7-421"><a href="#cb7-421" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
+<span id="cb7-422"><a href="#cb7-422" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb7-423"><a href="#cb7-423" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-424"><a href="#cb7-424" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-6" data-nodetype="declaration">
 
@@ -724,24 +725,23 @@ bslib.Sidebar.initCollapsibleAll()
 </script>
 </div>
 </div>
-</div>
 <div id="duration" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container dashboard-sidebar-container" data-orientation="rows" aria-labelledby="tab-duration">
-<div class="bslib-sidebar-layout html-fill-item html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" style=" --bslib-sidebar-width: 15%" data-bslib-sidebar-border="false" data-bslib-sidebar-border-radius="false"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
+<div class="bslib-sidebar-layout html-fill-item html-fill-container" data-bslib-sidebar-open="desktop" data-bslib-sidebar-init="true" style=" --bslib-sidebar-width: 15%"><div class="main html-fill-container html-fill-item"><div class="sidebar-content html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr);
 grid-auto-rows: minmax(0, 1fr);">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-title="These figures are computed using only consented surveys" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-header"><div class="card-title html-fill-item html-fill-container">These figures are computed using only consented surveys</div></div>
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb12" data-startfrom="532" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 531;"><span id="cb12-532"><a href="#cb12-532" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(durTable<span class="op">,</span> {</span>
-<span id="cb12-533"><a href="#cb12-533" aria-hidden="true" tabindex="-1"></a>  <span class="dt">header</span><span class="op">:</span> {</span>
-<span id="cb12-534"><a href="#cb12-534" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_0</span><span class="op">:</span> <span class="st">"Country"</span><span class="op">,</span></span>
-<span id="cb12-535"><a href="#cb12-535" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_1</span><span class="op">:</span> <span class="st">"Region"</span><span class="op">,</span></span>
-<span id="cb12-536"><a href="#cb12-536" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_2</span><span class="op">:</span> <span class="st">"Zone"</span><span class="op">,</span></span>
-<span id="cb12-537"><a href="#cb12-537" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_3</span><span class="op">:</span> <span class="st">"Woreda"</span></span>
-<span id="cb12-538"><a href="#cb12-538" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
-<span id="cb12-539"><a href="#cb12-539" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span></span>
-<span id="cb12-540"><a href="#cb12-540" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb12" data-startfrom="533" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 532;"><span id="cb12-533"><a href="#cb12-533" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(durTable<span class="op">,</span> {</span>
+<span id="cb12-534"><a href="#cb12-534" aria-hidden="true" tabindex="-1"></a>  <span class="dt">header</span><span class="op">:</span> {</span>
+<span id="cb12-535"><a href="#cb12-535" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_0</span><span class="op">:</span> <span class="st">"Country"</span><span class="op">,</span></span>
+<span id="cb12-536"><a href="#cb12-536" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_1</span><span class="op">:</span> <span class="st">"Region"</span><span class="op">,</span></span>
+<span id="cb12-537"><a href="#cb12-537" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_2</span><span class="op">:</span> <span class="st">"Zone"</span><span class="op">,</span></span>
+<span id="cb12-538"><a href="#cb12-538" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_3</span><span class="op">:</span> <span class="st">"Woreda"</span></span>
+<span id="cb12-539"><a href="#cb12-539" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb12-540"><a href="#cb12-540" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span></span>
+<span id="cb12-541"><a href="#cb12-541" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div id="ojs-cell-10" data-nodetype="expression" class="html-fill-item html-fill-container">
 
@@ -758,31 +758,31 @@ grid-auto-rows: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-title="Average survey duration for consented surveys by submission date" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-header"><div class="card-title html-fill-item html-fill-container">Average survey duration for consented surveys by submission date</div></div>
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb13" data-startfrom="549" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 548;"><span id="cb13-549"><a href="#cb13-549" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb13-550"><a href="#cb13-550" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Average survey duration (min)"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span> }<span class="op">,</span></span>
-<span id="cb13-551"><a href="#cb13-551" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">'Submission date'</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">labelOffset</span><span class="op">:</span> <span class="op">-</span><span class="dv">5</span>}<span class="op">,</span></span>
-<span id="cb13-552"><a href="#cb13-552" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
-<span id="cb13-553"><a href="#cb13-553" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span> [<span class="st">"#3ca951"</span><span class="op">,</span> <span class="st">"#ff725c"</span>]</span>
-<span id="cb13-554"><a href="#cb13-554" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb13-555"><a href="#cb13-555" aria-hidden="true" tabindex="-1"></a>  <span class="dt">style</span><span class="op">:</span> {<span class="dt">fontSize</span><span class="op">:</span> <span class="st">"12px"</span>}<span class="op">,</span></span>
-<span id="cb13-556"><a href="#cb13-556" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb13-557"><a href="#cb13-557" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">lineY</span>(</span>
-<span id="cb13-558"><a href="#cb13-558" aria-hidden="true" tabindex="-1"></a>    durData<span class="op">,</span></span>
-<span id="cb13-559"><a href="#cb13-559" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">binX</span>({ <span class="dt">y</span><span class="op">:</span> <span class="st">"mean"</span> }<span class="op">,</span> { <span class="dt">x</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">parse_ymd</span>(d<span class="op">.</span><span class="at">SubmissionDate</span>)<span class="op">,</span> </span>
-<span id="cb13-560"><a href="#cb13-560" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(d<span class="op">.</span><span class="at">duration</span>)<span class="op">,</span> <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span> })</span>
-<span id="cb13-561"><a href="#cb13-561" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb13-562"><a href="#cb13-562" aria-hidden="true" tabindex="-1"></a>        Plot<span class="op">.</span><span class="fu">dot</span>(</span>
-<span id="cb13-563"><a href="#cb13-563" aria-hidden="true" tabindex="-1"></a>      durData<span class="op">,</span></span>
-<span id="cb13-564"><a href="#cb13-564" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">binX</span>(</span>
-<span id="cb13-565"><a href="#cb13-565" aria-hidden="true" tabindex="-1"></a>        { <span class="dt">y</span><span class="op">:</span> <span class="st">"mean"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"mean"</span> }<span class="op">,</span></span>
-<span id="cb13-566"><a href="#cb13-566" aria-hidden="true" tabindex="-1"></a>        { <span class="dt">x</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">parse_ymd</span>(d<span class="op">.</span><span class="at">SubmissionDate</span>)<span class="op">,</span> </span>
-<span id="cb13-567"><a href="#cb13-567" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(d<span class="op">.</span><span class="at">duration</span>)<span class="op">,</span> </span>
-<span id="cb13-568"><a href="#cb13-568" aria-hidden="true" tabindex="-1"></a>        <span class="dt">stroke</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(d<span class="op">.</span><span class="at">duration</span>)<span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">8</span> }</span>
-<span id="cb13-569"><a href="#cb13-569" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb13-570"><a href="#cb13-570" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb13-571"><a href="#cb13-571" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">30</span>])</span>
-<span id="cb13-572"><a href="#cb13-572" aria-hidden="true" tabindex="-1"></a>    ]</span>
-<span id="cb13-573"><a href="#cb13-573" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb13" data-startfrom="550" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 549;"><span id="cb13-550"><a href="#cb13-550" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb13-551"><a href="#cb13-551" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Average survey duration (min)"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span> }<span class="op">,</span></span>
+<span id="cb13-552"><a href="#cb13-552" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">'Submission date'</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">labelOffset</span><span class="op">:</span> <span class="op">-</span><span class="dv">5</span>}<span class="op">,</span></span>
+<span id="cb13-553"><a href="#cb13-553" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {</span>
+<span id="cb13-554"><a href="#cb13-554" aria-hidden="true" tabindex="-1"></a>    <span class="dt">range</span><span class="op">:</span> [<span class="st">"#3ca951"</span><span class="op">,</span> <span class="st">"#ff725c"</span>]</span>
+<span id="cb13-555"><a href="#cb13-555" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb13-556"><a href="#cb13-556" aria-hidden="true" tabindex="-1"></a>  <span class="dt">style</span><span class="op">:</span> {<span class="dt">fontSize</span><span class="op">:</span> <span class="st">"12px"</span>}<span class="op">,</span></span>
+<span id="cb13-557"><a href="#cb13-557" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb13-558"><a href="#cb13-558" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">lineY</span>(</span>
+<span id="cb13-559"><a href="#cb13-559" aria-hidden="true" tabindex="-1"></a>    durData<span class="op">,</span></span>
+<span id="cb13-560"><a href="#cb13-560" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">binX</span>({ <span class="dt">y</span><span class="op">:</span> <span class="st">"mean"</span> }<span class="op">,</span> { <span class="dt">x</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">parse_ymd</span>(d<span class="op">.</span><span class="at">SubmissionDate</span>)<span class="op">,</span> </span>
+<span id="cb13-561"><a href="#cb13-561" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(d<span class="op">.</span><span class="at">duration</span>)<span class="op">,</span> <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span> })</span>
+<span id="cb13-562"><a href="#cb13-562" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb13-563"><a href="#cb13-563" aria-hidden="true" tabindex="-1"></a>        Plot<span class="op">.</span><span class="fu">dot</span>(</span>
+<span id="cb13-564"><a href="#cb13-564" aria-hidden="true" tabindex="-1"></a>      durData<span class="op">,</span></span>
+<span id="cb13-565"><a href="#cb13-565" aria-hidden="true" tabindex="-1"></a>      Plot<span class="op">.</span><span class="fu">binX</span>(</span>
+<span id="cb13-566"><a href="#cb13-566" aria-hidden="true" tabindex="-1"></a>        { <span class="dt">y</span><span class="op">:</span> <span class="st">"mean"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span> <span class="st">"mean"</span> }<span class="op">,</span></span>
+<span id="cb13-567"><a href="#cb13-567" aria-hidden="true" tabindex="-1"></a>        { <span class="dt">x</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">parse_ymd</span>(d<span class="op">.</span><span class="at">SubmissionDate</span>)<span class="op">,</span> </span>
+<span id="cb13-568"><a href="#cb13-568" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(d<span class="op">.</span><span class="at">duration</span>)<span class="op">,</span> </span>
+<span id="cb13-569"><a href="#cb13-569" aria-hidden="true" tabindex="-1"></a>        <span class="dt">stroke</span><span class="op">:</span> (d) <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(d<span class="op">.</span><span class="at">duration</span>)<span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">8</span> }</span>
+<span id="cb13-570"><a href="#cb13-570" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb13-571"><a href="#cb13-571" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb13-572"><a href="#cb13-572" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">30</span>])</span>
+<span id="cb13-573"><a href="#cb13-573" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb13-574"><a href="#cb13-574" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div id="ojs-cell-11" data-nodetype="expression" class="html-fill-item html-fill-container">
 
@@ -798,40 +798,40 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div></div><aside id="bslib-sidebar-3" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden" id="cb10" data-startfrom="487" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 486;"><span id="cb10-487"><a href="#cb10-487" aria-hidden="true" tabindex="-1"></a>viewof durPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb10-488"><a href="#cb10-488" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
-<span id="cb10-489"><a href="#cb10-489" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb10-490"><a href="#cb10-490" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
-<span id="cb10-491"><a href="#cb10-491" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
-<span id="cb10-492"><a href="#cb10-492" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb10-493"><a href="#cb10-493" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb10-494"><a href="#cb10-494" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb10" data-startfrom="488" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 487;"><span id="cb10-488"><a href="#cb10-488" aria-hidden="true" tabindex="-1"></a>viewof durPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb10-489"><a href="#cb10-489" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
+<span id="cb10-490"><a href="#cb10-490" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb10-491"><a href="#cb10-491" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
+<span id="cb10-492"><a href="#cb10-492" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
+<span id="cb10-493"><a href="#cb10-493" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb10-494"><a href="#cb10-494" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-495"><a href="#cb10-495" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-8" data-nodetype="declaration">
 
 </div>
 </div>
 <div class="cell hidden">
-<div class="sourceCode cell-code hidden" id="cb11" data-startfrom="502" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 501;"><span id="cb11-502"><a href="#cb11-502" aria-hidden="true" tabindex="-1"></a>durGroup <span class="op">=</span> durPickAdmin <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="st">"admin_1"</span> <span class="op">:</span> <span class="st">"admin_3"</span></span>
-<span id="cb11-503"><a href="#cb11-503" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode cell-code hidden" id="cb11" data-startfrom="503" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 502;"><span id="cb11-503"><a href="#cb11-503" aria-hidden="true" tabindex="-1"></a>durGroup <span class="op">=</span> durPickAdmin <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="st">"admin_1"</span> <span class="op">:</span> <span class="st">"admin_3"</span></span>
 <span id="cb11-504"><a href="#cb11-504" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-505"><a href="#cb11-505" aria-hidden="true" tabindex="-1"></a>durData <span class="op">=</span> aqData</span>
-<span id="cb11-506"><a href="#cb11-506" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
-<span id="cb11-507"><a href="#cb11-507" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> durPickAdmin</span>
-<span id="cb11-508"><a href="#cb11-508" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb11-509"><a href="#cb11-509" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
-<span id="cb11-510"><a href="#cb11-510" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span>)</span>
-<span id="cb11-511"><a href="#cb11-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-505"><a href="#cb11-505" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-506"><a href="#cb11-506" aria-hidden="true" tabindex="-1"></a>durData <span class="op">=</span> aqData</span>
+<span id="cb11-507"><a href="#cb11-507" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
+<span id="cb11-508"><a href="#cb11-508" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> durPickAdmin</span>
+<span id="cb11-509"><a href="#cb11-509" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb11-510"><a href="#cb11-510" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
+<span id="cb11-511"><a href="#cb11-511" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span>)</span>
 <span id="cb11-512"><a href="#cb11-512" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-513"><a href="#cb11-513" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-514"><a href="#cb11-514" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-515"><a href="#cb11-515" aria-hidden="true" tabindex="-1"></a>durTable <span class="op">=</span> durData</span>
-<span id="cb11-516"><a href="#cb11-516" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(durGroup)</span>
-<span id="cb11-517"><a href="#cb11-517" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
-<span id="cb11-518"><a href="#cb11-518" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Minimum</span><span class="op">:</span>  d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">min</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
-<span id="cb11-519"><a href="#cb11-519" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Average</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
-<span id="cb11-520"><a href="#cb11-520" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Maximum</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">max</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
-<span id="cb11-521"><a href="#cb11-521" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-515"><a href="#cb11-515" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-516"><a href="#cb11-516" aria-hidden="true" tabindex="-1"></a>durTable <span class="op">=</span> durData</span>
+<span id="cb11-517"><a href="#cb11-517" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(durGroup)</span>
+<span id="cb11-518"><a href="#cb11-518" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
+<span id="cb11-519"><a href="#cb11-519" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Minimum</span><span class="op">:</span>  d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">min</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
+<span id="cb11-520"><a href="#cb11-520" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Average</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
+<span id="cb11-521"><a href="#cb11-521" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Maximum</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">max</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
+<span id="cb11-522"><a href="#cb11-522" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display hidden">
 <div>
 <div id="ojs-cell-9-1" data-nodetype="declaration">
@@ -872,18 +872,18 @@ grid-auto-rows: minmax(0, 1fr);">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb16" data-startfrom="629" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 628;"><span id="cb16-629"><a href="#cb16-629" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(enumTable<span class="op">,</span> {</span>
-<span id="cb16-630"><a href="#cb16-630" aria-hidden="true" tabindex="-1"></a>  <span class="dt">header</span><span class="op">:</span> {</span>
-<span id="cb16-631"><a href="#cb16-631" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_0</span><span class="op">:</span> <span class="st">"Country"</span><span class="op">,</span></span>
-<span id="cb16-632"><a href="#cb16-632" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_1</span><span class="op">:</span> <span class="st">"Region"</span><span class="op">,</span></span>
-<span id="cb16-633"><a href="#cb16-633" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_2</span><span class="op">:</span> <span class="st">"Zone"</span><span class="op">,</span></span>
-<span id="cb16-634"><a href="#cb16-634" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_3</span><span class="op">:</span> <span class="st">"Woreda"</span></span>
-<span id="cb16-635"><a href="#cb16-635" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
-<span id="cb16-636"><a href="#cb16-636" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span><span class="op">,</span></span>
-<span id="cb16-637"><a href="#cb16-637" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> {</span>
-<span id="cb16-638"><a href="#cb16-638" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Submitted</span><span class="op">:</span> <span class="fu">sparkbar</span>(d3<span class="op">.</span><span class="fu">max</span>(enumTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">Submitted</span>))</span>
-<span id="cb16-639"><a href="#cb16-639" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb16-640"><a href="#cb16-640" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb16" data-startfrom="630" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 629;"><span id="cb16-630"><a href="#cb16-630" aria-hidden="true" tabindex="-1"></a>Inputs<span class="op">.</span><span class="fu">table</span>(enumTable<span class="op">,</span> {</span>
+<span id="cb16-631"><a href="#cb16-631" aria-hidden="true" tabindex="-1"></a>  <span class="dt">header</span><span class="op">:</span> {</span>
+<span id="cb16-632"><a href="#cb16-632" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_0</span><span class="op">:</span> <span class="st">"Country"</span><span class="op">,</span></span>
+<span id="cb16-633"><a href="#cb16-633" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_1</span><span class="op">:</span> <span class="st">"Region"</span><span class="op">,</span></span>
+<span id="cb16-634"><a href="#cb16-634" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_2</span><span class="op">:</span> <span class="st">"Zone"</span><span class="op">,</span></span>
+<span id="cb16-635"><a href="#cb16-635" aria-hidden="true" tabindex="-1"></a>    <span class="dt">admin_3</span><span class="op">:</span> <span class="st">"Woreda"</span></span>
+<span id="cb16-636"><a href="#cb16-636" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb16-637"><a href="#cb16-637" aria-hidden="true" tabindex="-1"></a>  <span class="dt">layout</span><span class="op">:</span> <span class="st">"auto"</span><span class="op">,</span></span>
+<span id="cb16-638"><a href="#cb16-638" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> {</span>
+<span id="cb16-639"><a href="#cb16-639" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Submitted</span><span class="op">:</span> <span class="fu">sparkbar</span>(d3<span class="op">.</span><span class="fu">max</span>(enumTable<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">Submitted</span>))</span>
+<span id="cb16-640"><a href="#cb16-640" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-641"><a href="#cb16-641" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div id="ojs-cell-14" data-nodetype="expression" class="html-fill-item html-fill-container">
 
@@ -899,38 +899,38 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div></div><aside id="bslib-sidebar-4" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden" id="cb14" data-startfrom="586" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 585;"><span id="cb14-586"><a href="#cb14-586" aria-hidden="true" tabindex="-1"></a>viewof enumPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb14-587"><a href="#cb14-587" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
-<span id="cb14-588"><a href="#cb14-588" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb14-589"><a href="#cb14-589" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
-<span id="cb14-590"><a href="#cb14-590" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
-<span id="cb14-591"><a href="#cb14-591" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb14-592"><a href="#cb14-592" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb14-593"><a href="#cb14-593" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb14" data-startfrom="587" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 586;"><span id="cb14-587"><a href="#cb14-587" aria-hidden="true" tabindex="-1"></a>viewof enumPickAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb14-588"><a href="#cb14-588" aria-hidden="true" tabindex="-1"></a>  dashboardAdmin<span class="op">,</span></span>
+<span id="cb14-589"><a href="#cb14-589" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb14-590"><a href="#cb14-590" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
+<span id="cb14-591"><a href="#cb14-591" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span><span class="op">,</span></span>
+<span id="cb14-592"><a href="#cb14-592" aria-hidden="true" tabindex="-1"></a>    <span class="dt">unique</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb14-593"><a href="#cb14-593" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb14-594"><a href="#cb14-594" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-12" data-nodetype="declaration">
 
 </div>
 </div>
 <div class="cell hidden">
-<div class="sourceCode cell-code hidden" id="cb15" data-startfrom="599" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 598;"><span id="cb15-599"><a href="#cb15-599" aria-hidden="true" tabindex="-1"></a>enumTable <span class="op">=</span> aqData</span>
-<span id="cb15-600"><a href="#cb15-600" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
-<span id="cb15-601"><a href="#cb15-601" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> enumPickAdmin</span>
-<span id="cb15-602"><a href="#cb15-602" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb15-603"><a href="#cb15-603" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
-<span id="cb15-604"><a href="#cb15-604" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({</span>
-<span id="cb15-605"><a href="#cb15-605" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb15-606"><a href="#cb15-606" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">2</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb15-607"><a href="#cb15-607" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb15-608"><a href="#cb15-608" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(<span class="st">'Enumerator'</span>)</span>
-<span id="cb15-609"><a href="#cb15-609" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
-<span id="cb15-610"><a href="#cb15-610" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Submitted</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">count</span>()<span class="op">,</span></span>
-<span id="cb15-611"><a href="#cb15-611" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>)<span class="op">,</span></span>
-<span id="cb15-612"><a href="#cb15-612" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>)<span class="op">,</span></span>
-<span id="cb15-613"><a href="#cb15-613" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Min. Duration'</span><span class="op">:</span>  d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">min</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
-<span id="cb15-614"><a href="#cb15-614" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Avg. Duration'</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
-<span id="cb15-615"><a href="#cb15-615" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Max. Duration'</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">max</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
-<span id="cb15-616"><a href="#cb15-616" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb15" data-startfrom="600" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 599;"><span id="cb15-600"><a href="#cb15-600" aria-hidden="true" tabindex="-1"></a>enumTable <span class="op">=</span> aqData</span>
+<span id="cb15-601"><a href="#cb15-601" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">params</span>({</span>
+<span id="cb15-602"><a href="#cb15-602" aria-hidden="true" tabindex="-1"></a>  <span class="dt">admin</span><span class="op">:</span> enumPickAdmin</span>
+<span id="cb15-603"><a href="#cb15-603" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb15-604"><a href="#cb15-604" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">filter</span>((d<span class="op">,</span> $) <span class="kw">=&gt;</span> $<span class="op">.</span><span class="at">admin</span> <span class="op">==</span> <span class="st">"All"</span> <span class="op">?</span> <span class="kw">true</span> <span class="op">:</span> op<span class="op">.</span><span class="fu">includes</span>($<span class="op">.</span><span class="at">admin</span><span class="op">,</span> d<span class="op">.</span><span class="at">admin_1</span>))</span>
+<span id="cb15-605"><a href="#cb15-605" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">derive</span>({</span>
+<span id="cb15-606"><a href="#cb15-606" aria-hidden="true" tabindex="-1"></a>    <span class="dt">consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">1</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb15-607"><a href="#cb15-607" aria-hidden="true" tabindex="-1"></a>    <span class="dt">refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">consent</span> <span class="op">==</span> <span class="dv">2</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb15-608"><a href="#cb15-608" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb15-609"><a href="#cb15-609" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">groupby</span>(<span class="st">'Enumerator'</span>)</span>
+<span id="cb15-610"><a href="#cb15-610" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">rollup</span>({</span>
+<span id="cb15-611"><a href="#cb15-611" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Submitted</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">count</span>()<span class="op">,</span></span>
+<span id="cb15-612"><a href="#cb15-612" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Consented</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">consented</span>)<span class="op">,</span></span>
+<span id="cb15-613"><a href="#cb15-613" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Refused</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">sum</span>(d<span class="op">.</span><span class="at">refused</span>)<span class="op">,</span></span>
+<span id="cb15-614"><a href="#cb15-614" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Min. Duration'</span><span class="op">:</span>  d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">min</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
+<span id="cb15-615"><a href="#cb15-615" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Avg. Duration'</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">average</span>(d<span class="op">.</span><span class="at">duration</span>))<span class="op">,</span></span>
+<span id="cb15-616"><a href="#cb15-616" aria-hidden="true" tabindex="-1"></a>  <span class="st">'Max. Duration'</span><span class="op">:</span> d <span class="kw">=&gt;</span> op<span class="op">.</span><span class="fu">round</span>(op<span class="op">.</span><span class="fu">max</span>(d<span class="op">.</span><span class="at">duration</span>))</span>
+<span id="cb15-617"><a href="#cb15-617" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display hidden">
 <div id="ojs-cell-13" data-nodetype="declaration">
 
@@ -955,33 +955,33 @@ grid-auto-rows: minmax(0, 1fr);">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb19" data-startfrom="681" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 680;"><span id="cb19-681"><a href="#cb19-681" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> {</span>
-<span id="cb19-682"><a href="#cb19-682" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> L <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"leaflet@1/dist/leaflet.js"</span>)<span class="op">;</span></span>
-<span id="cb19-683"><a href="#cb19-683" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>L<span class="op">.</span><span class="at">_style</span>) {</span>
-<span id="cb19-684"><a href="#cb19-684" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> href <span class="op">=</span> <span class="cf">await</span> require<span class="op">.</span><span class="fu">resolve</span>(<span class="st">"leaflet@1/dist/leaflet.css"</span>)<span class="op">;</span></span>
-<span id="cb19-685"><a href="#cb19-685" aria-hidden="true" tabindex="-1"></a>    <span class="bu">document</span><span class="op">.</span><span class="at">head</span><span class="op">.</span><span class="fu">appendChild</span>(L<span class="op">.</span><span class="at">_style</span> <span class="op">=</span> <span class="fu">html</span><span class="vs">`&lt;link href=</span><span class="sc">${</span>href<span class="sc">}</span><span class="vs"> rel=stylesheet&gt;`</span>)<span class="op">;</span></span>
-<span id="cb19-686"><a href="#cb19-686" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb19-687"><a href="#cb19-687" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> L<span class="op">;</span></span>
-<span id="cb19-688"><a href="#cb19-688" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-689"><a href="#cb19-689" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb19" data-startfrom="682" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 681;"><span id="cb19-682"><a href="#cb19-682" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> {</span>
+<span id="cb19-683"><a href="#cb19-683" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> L <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"leaflet@1/dist/leaflet.js"</span>)<span class="op">;</span></span>
+<span id="cb19-684"><a href="#cb19-684" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>L<span class="op">.</span><span class="at">_style</span>) {</span>
+<span id="cb19-685"><a href="#cb19-685" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> href <span class="op">=</span> <span class="cf">await</span> require<span class="op">.</span><span class="fu">resolve</span>(<span class="st">"leaflet@1/dist/leaflet.css"</span>)<span class="op">;</span></span>
+<span id="cb19-686"><a href="#cb19-686" aria-hidden="true" tabindex="-1"></a>    <span class="bu">document</span><span class="op">.</span><span class="at">head</span><span class="op">.</span><span class="fu">appendChild</span>(L<span class="op">.</span><span class="at">_style</span> <span class="op">=</span> <span class="fu">html</span><span class="vs">`&lt;link href=</span><span class="sc">${</span>href<span class="sc">}</span><span class="vs"> rel=stylesheet&gt;`</span>)<span class="op">;</span></span>
+<span id="cb19-687"><a href="#cb19-687" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-688"><a href="#cb19-688" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> L<span class="op">;</span></span>
+<span id="cb19-689"><a href="#cb19-689" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb19-690"><a href="#cb19-690" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-691"><a href="#cb19-691" aria-hidden="true" tabindex="-1"></a>map <span class="op">=</span> {</span>
-<span id="cb19-692"><a href="#cb19-692" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> container <span class="op">=</span> DOM<span class="op">.</span><span class="fu">element</span>(<span class="st">'div'</span><span class="op">,</span> { </span>
-<span id="cb19-693"><a href="#cb19-693" aria-hidden="true" tabindex="-1"></a>  <span class="dt">style</span><span class="op">:</span> <span class="vs">`width:</span><span class="sc">${</span>width<span class="sc">}</span><span class="vs">px;height:</span><span class="sc">${</span>width<span class="op">/</span><span class="fl">1.6</span><span class="sc">}</span><span class="vs">px`</span> })<span class="op">;</span></span>
-<span id="cb19-694"><a href="#cb19-694" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb19-695"><a href="#cb19-695" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> container<span class="op">;</span></span>
-<span id="cb19-696"><a href="#cb19-696" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb19-697"><a href="#cb19-697" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> map <span class="op">=</span> L<span class="op">.</span><span class="fu">map</span>(container)<span class="op">.</span><span class="fu">setView</span>([<span class="fl">9.5</span><span class="op">,</span> <span class="dv">40</span>]<span class="op">,</span> <span class="fl">6.5</span>)<span class="op">;</span></span>
-<span id="cb19-698"><a href="#cb19-698" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> osmLayer <span class="op">=</span> L<span class="op">.</span><span class="fu">tileLayer</span>(<span class="st">'https://tile.openstreetmap.org/{z}/{x}/{y}.png'</span><span class="op">,</span> {</span>
-<span id="cb19-699"><a href="#cb19-699" aria-hidden="true" tabindex="-1"></a>      <span class="dt">attribution</span><span class="op">:</span> <span class="st">'&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright"&gt;OpenStreetMap&lt;/a&gt; contributors'</span></span>
-<span id="cb19-700"><a href="#cb19-700" aria-hidden="true" tabindex="-1"></a>  })<span class="op">.</span><span class="fu">addTo</span>(map)<span class="op">;</span></span>
-<span id="cb19-701"><a href="#cb19-701" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb19-702"><a href="#cb19-702" aria-hidden="true" tabindex="-1"></a>   pickMapAdmin3<span class="op">.</span><span class="fu">forEach</span>(row <span class="kw">=&gt;</span> {</span>
-<span id="cb19-703"><a href="#cb19-703" aria-hidden="true" tabindex="-1"></a>    L<span class="op">.</span><span class="fu">marker</span>([row<span class="op">.</span><span class="at">lat</span><span class="op">,</span> row<span class="op">.</span><span class="at">lng</span>])</span>
-<span id="cb19-704"><a href="#cb19-704" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">addTo</span>(map)</span>
-<span id="cb19-705"><a href="#cb19-705" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">bindTooltip</span>(row<span class="op">.</span><span class="at">label</span><span class="op">,</span> { <span class="dt">permanent</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">direction</span><span class="op">:</span> <span class="st">"top"</span> })<span class="op">;</span></span>
-<span id="cb19-706"><a href="#cb19-706" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
-<span id="cb19-707"><a href="#cb19-707" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-691"><a href="#cb19-691" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-692"><a href="#cb19-692" aria-hidden="true" tabindex="-1"></a>map <span class="op">=</span> {</span>
+<span id="cb19-693"><a href="#cb19-693" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> container <span class="op">=</span> DOM<span class="op">.</span><span class="fu">element</span>(<span class="st">'div'</span><span class="op">,</span> { </span>
+<span id="cb19-694"><a href="#cb19-694" aria-hidden="true" tabindex="-1"></a>  <span class="dt">style</span><span class="op">:</span> <span class="vs">`width:</span><span class="sc">${</span>width<span class="sc">}</span><span class="vs">px;height:</span><span class="sc">${</span>width<span class="op">/</span><span class="fl">1.6</span><span class="sc">}</span><span class="vs">px`</span> })<span class="op">;</span></span>
+<span id="cb19-695"><a href="#cb19-695" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-696"><a href="#cb19-696" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> container<span class="op">;</span></span>
+<span id="cb19-697"><a href="#cb19-697" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-698"><a href="#cb19-698" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> map <span class="op">=</span> L<span class="op">.</span><span class="fu">map</span>(container)<span class="op">.</span><span class="fu">setView</span>([<span class="fl">9.5</span><span class="op">,</span> <span class="dv">40</span>]<span class="op">,</span> <span class="fl">6.5</span>)<span class="op">;</span></span>
+<span id="cb19-699"><a href="#cb19-699" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> osmLayer <span class="op">=</span> L<span class="op">.</span><span class="fu">tileLayer</span>(<span class="st">'https://tile.openstreetmap.org/{z}/{x}/{y}.png'</span><span class="op">,</span> {</span>
+<span id="cb19-700"><a href="#cb19-700" aria-hidden="true" tabindex="-1"></a>      <span class="dt">attribution</span><span class="op">:</span> <span class="st">'&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright"&gt;OpenStreetMap&lt;/a&gt; contributors'</span></span>
+<span id="cb19-701"><a href="#cb19-701" aria-hidden="true" tabindex="-1"></a>  })<span class="op">.</span><span class="fu">addTo</span>(map)<span class="op">;</span></span>
+<span id="cb19-702"><a href="#cb19-702" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-703"><a href="#cb19-703" aria-hidden="true" tabindex="-1"></a>   pickMapAdmin3<span class="op">.</span><span class="fu">forEach</span>(row <span class="kw">=&gt;</span> {</span>
+<span id="cb19-704"><a href="#cb19-704" aria-hidden="true" tabindex="-1"></a>    L<span class="op">.</span><span class="fu">marker</span>([row<span class="op">.</span><span class="at">lat</span><span class="op">,</span> row<span class="op">.</span><span class="at">lng</span>])</span>
+<span id="cb19-705"><a href="#cb19-705" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">addTo</span>(map)</span>
+<span id="cb19-706"><a href="#cb19-706" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">bindTooltip</span>(row<span class="op">.</span><span class="at">label</span><span class="op">,</span> { <span class="dt">permanent</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">direction</span><span class="op">:</span> <span class="st">"top"</span> })<span class="op">;</span></span>
+<span id="cb19-707"><a href="#cb19-707" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb19-708"><a href="#cb19-708" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container">
 <div id="ojs-cell-17-1" data-nodetype="declaration" class="html-fill-item html-fill-container">
@@ -1009,25 +1009,25 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div></div><aside id="bslib-sidebar-5" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden" id="cb17" data-startfrom="652" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 651;"><span id="cb17-652"><a href="#cb17-652" aria-hidden="true" tabindex="-1"></a>viewof pickMapAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb17-653"><a href="#cb17-653" aria-hidden="true" tabindex="-1"></a>    d3<span class="op">.</span><span class="fu">group</span>(d3<span class="op">.</span><span class="fu">sort</span>(geoData<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_1</span>)<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_1</span>)<span class="op">,</span></span>
-<span id="cb17-654"><a href="#cb17-654" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb17-655"><a href="#cb17-655" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
-<span id="cb17-656"><a href="#cb17-656" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span></span>
-<span id="cb17-657"><a href="#cb17-657" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb17-658"><a href="#cb17-658" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb17" data-startfrom="653" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 652;"><span id="cb17-653"><a href="#cb17-653" aria-hidden="true" tabindex="-1"></a>viewof pickMapAdmin <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb17-654"><a href="#cb17-654" aria-hidden="true" tabindex="-1"></a>    d3<span class="op">.</span><span class="fu">group</span>(d3<span class="op">.</span><span class="fu">sort</span>(geoData<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_1</span>)<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_1</span>)<span class="op">,</span></span>
+<span id="cb17-655"><a href="#cb17-655" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb17-656"><a href="#cb17-656" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
+<span id="cb17-657"><a href="#cb17-657" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Region"</span></span>
+<span id="cb17-658"><a href="#cb17-658" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-659"><a href="#cb17-659" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-15" data-nodetype="declaration">
 
 </div>
 </div>
-<div class="sourceCode cell-code hidden" id="cb18" data-startfrom="665" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 664;"><span id="cb18-665"><a href="#cb18-665" aria-hidden="true" tabindex="-1"></a>viewof pickMapAdmin3 <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb18-666"><a href="#cb18-666" aria-hidden="true" tabindex="-1"></a>    d3<span class="op">.</span><span class="fu">group</span>(d3<span class="op">.</span><span class="fu">sort</span>(pickMapAdmin<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_3</span>)<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_3</span>)<span class="op">,</span></span>
-<span id="cb18-667"><a href="#cb18-667" aria-hidden="true" tabindex="-1"></a>    {</span>
-<span id="cb18-668"><a href="#cb18-668" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
-<span id="cb18-669"><a href="#cb18-669" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Woreda"</span></span>
-<span id="cb18-670"><a href="#cb18-670" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb18-671"><a href="#cb18-671" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb18" data-startfrom="666" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 665;"><span id="cb18-666"><a href="#cb18-666" aria-hidden="true" tabindex="-1"></a>viewof pickMapAdmin3 <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb18-667"><a href="#cb18-667" aria-hidden="true" tabindex="-1"></a>    d3<span class="op">.</span><span class="fu">group</span>(d3<span class="op">.</span><span class="fu">sort</span>(pickMapAdmin<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_3</span>)<span class="op">,</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">admin_3</span>)<span class="op">,</span></span>
+<span id="cb18-668"><a href="#cb18-668" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb18-669"><a href="#cb18-669" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">""</span><span class="op">,</span></span>
+<span id="cb18-670"><a href="#cb18-670" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Select a Woreda"</span></span>
+<span id="cb18-671"><a href="#cb18-671" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-672"><a href="#cb18-672" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-16" data-nodetype="declaration">
 

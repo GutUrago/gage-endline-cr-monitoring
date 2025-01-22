@@ -264,8 +264,28 @@ notLocatedValue = notLocatedSample + " (" + ((notLocatedSample/submittedSample) 
 
 ```
 
+## Sidebar {.sidebar width="15%"}
 
-## Valueboxes {height="30%"}
+
+
+```{ojs}
+
+viewof dashPickAdmin = Inputs.select(
+  dashboardAdmin,
+  {
+    value: "",
+    label: "Select a Region",
+    unique: true
+  }
+)
+```
+
+
+
+##  Main display
+
+
+### Valueboxes {height="30%"}
 
 
 ::: {.valuebox icon="people-fill" color="secondary"}
@@ -304,27 +324,9 @@ Unable to locate
 :::
 
 
-##  Main display {height="70%"}
-
-### Sidebar {.sidebar width="15%"}
 
 
-
-```{ojs}
-
-viewof dashPickAdmin = Inputs.select(
-  dashboardAdmin,
-  {
-    value: "",
-    label: "Select a Region",
-    unique: true
-  }
-)
-```
-
-
-
-### Main Table
+### Main Table {height="70%"}
 
 ```{ojs}
 
@@ -407,6 +409,26 @@ nDaysEst = ((nDaysIntoDC * sampleSize)/progressData.numRows()).toFixed()
 ```
 
 
+## Sidebar {.sidebar width="15%"}
+
+
+
+
+```{ojs}
+viewof progPickAdmin = Inputs.select(
+  dashboardAdmin,
+  {
+    value: "",
+    label: "Select a Region",
+    unique: true
+  }
+)
+```
+
+
+##  Main display
+
+
 
 ##  Valueboxes {height="30%"}
 
@@ -443,29 +465,8 @@ Days estimated
 
 
 
-##  Main display {height="70%"}
 
-### Sidebar {.sidebar width="15%"}
-
-
-
-
-```{ojs}
-viewof progPickAdmin = Inputs.select(
-  dashboardAdmin,
-  {
-    value: "",
-    label: "Select a Region",
-    unique: true
-  }
-)
-```
-
-
-
-
-
-### Main Table
+### Main Table {height="70%"}
 
 ```{ojs}
 // 'Submission Date': d => op.format_date(op.parse_ymd(d.SubmissionDate))
