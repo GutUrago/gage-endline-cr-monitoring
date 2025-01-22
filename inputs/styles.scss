@@ -6,7 +6,7 @@
 /*-- scss:rules --*/
 
 .value-box-value .observablehq {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 
@@ -15,11 +15,11 @@
 }
 
 .quarto-dashboard .bslib-value-box .value-box-title {
-    font-size: clamp(.1em, 8cqw, 5em) !important;
+    font-size: clamp(.1em, 5cqw, 5em) !important;
 }
 
 .quarto-dashboard .bslib-value-box .value-box-area {
-    font-size: clamp(.1em, 8cqw, 5em) !important;
+    font-size: clamp(.1em, 5cqw, 5em) !important;
 }
 
 

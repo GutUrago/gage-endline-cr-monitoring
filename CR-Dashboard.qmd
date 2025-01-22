@@ -176,11 +176,25 @@ aq.addFunction('format_date', d3.timeFormat("%b %d, %Y"), { override: true })
 // Output table formats
 percentFormat = d => d == 100 ? "100%" : d == Infinity ? "100%" : d == 0 ? "0%" : d.toFixed(1) + "%"
 
+
+// Functions
+function sparkbar(max) {
+  return x => htl.html`<div style="
+    background: lightblue;
+    width: ${100 * x / max}%;
+    float: right;
+    padding-right: 3px;
+    box-sizing: border-box;
+    overflow: visible;
+    display: flex;
+    justify-content: end;">${x.toLocaleString("en")}`
+}
+
+
 // Data
 data = transpose(rData)
 geoData = transpose(geo_data)
 aqData = aq.from(data)
-aqGeoData = aq.from(geoData)
 ```
 
 
@@ -333,7 +347,8 @@ Inputs.table(dashboardTable, {
   submittedPerc: percentFormat,
   consentedPerc: percentFormat,
   refusedPerc: percentFormat
-}
+  },
+  layout: "auto"
 })
 ```
 
@@ -458,7 +473,9 @@ Inputs.table(progressTable,
   {
     header: {
         SubmissionDate: "Date"
-}})
+  },
+  layout: "auto"
+  })
 ```
 
 
@@ -519,8 +536,9 @@ Inputs.table(durTable, {
     admin_1: "Region",
     admin_2: "Zone",
     admin_3: "Woreda"
-    }
-})
+    },
+  layout: "auto"
+  })
 ```
 
 
@@ -615,8 +633,12 @@ Inputs.table(enumTable, {
     admin_1: "Region",
     admin_2: "Zone",
     admin_3: "Woreda"
-    }
-})
+    },
+  layout: "auto",
+  format: {
+  Submitted: sparkbar(d3.max(enumTable, d => d.Submitted))
+}
+  })
 ```
 
 
@@ -630,28 +652,19 @@ Inputs.table(enumTable, {
 ```{ojs}
 
 viewof pickMapAdmin = Inputs.select(
-    aqData.rollup({ 
-         a: d => op.array_agg_distinct(d.admin_1) 
-        })._data.a[0].sort(),
+    d3.group(d3.sort(geoData, d => d.admin_1), d => d.admin_1),
     {
     value: "",
     label: "Select a Region"
 }
 )
-
-
 ```
+
+
 
 ```{ojs}
 viewof pickMapAdmin3 = Inputs.select(
-    aqGeoData
-    .params({
-  admin: pickMapAdmin
-  })
-  .filter((d, $) => op.includes($.admin, d.admin_1))
-    .rollup({ 
-         a: d => op.array_agg_distinct(d.admin_3) 
-        })._data.a[0].sort(),
+    d3.group(d3.sort(pickMapAdmin, d => d.admin_3), d => d.admin_3),
     {
     value: "",
     label: "Select a Woreda"
@@ -662,11 +675,9 @@ viewof pickMapAdmin3 = Inputs.select(
 
 
 
-##
+## Main content
 
 ```{ojs}
-
-// Pulling leaflet javaScript and linking required CSS as a link tag
 L = {
   const L = await require("leaflet@1/dist/leaflet.js");
   if (!L._style) {
@@ -677,51 +688,23 @@ L = {
 }
 
 
-geoDataMap = geoData
-  .filter((d) => pickMapAdmin == d.admin_1)
-  .filter((d) => pickMapAdmin3 == d.admin_3).map((item, index) => ({
-  latitude: item.lat,
-  longitude: item.lng,
-  label: item.label
-}))
-
-
 map = {
-  // You'll often see Leaflet examples initializing a map like L.map('map'),
-  // which tells the library to look for a div with the id 'map' on the page.
-  // In Observable, we instead create a div from scratch in this cell, so it's
-  // completely self-contained. 
-  // Added -px to fit to screen
   let container = DOM.element('div', { 
   style: `width:${width}px;height:${width/1.6}px` });
   
-  // Note that I'm yielding the container pretty early here: this allows the
-  // div to be placed on the page. This is important, because Leaflet uses
-  // the div's .offsetWidth and .offsetHeight to size the map. If I were
-  // to only return the container at the end of this method, Leaflet might
-  // get the wrong idea about the map's size.
   yield container;
   
-  // Now we create a map object and add a layer to it.
   let map = L.map(container).setView([9.5, 40], 6.5);
   let osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
   
-  // Add markers
-   geoDataMap.forEach(row => {
-    L.marker([row.latitude, row.longitude])
+   pickMapAdmin3.forEach(row => {
+    L.marker([row.lat, row.lng])
       .addTo(map)
       .bindTooltip(row.label, { permanent: false, direction: "top" });
   });
 }
 
 ```
-
-
-
-
-
-
-
 
