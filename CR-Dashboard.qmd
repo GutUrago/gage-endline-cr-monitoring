@@ -9,7 +9,7 @@ editor_options:
 params:
   form_id: gage_endline_cr_survey
   sample_size: "inputs/sample_size.rds"
-  SubmissionDate: SubmissionDate
+  submissionDate: SubmissionDate
   admin_1: list_region
   admin_2: list_zone
   admin_3: list_woreda
@@ -111,10 +111,10 @@ df <- raw_data %>%
          admin_3 = params$admin_3,
          consent = params$consent,
          duration = params$duration,
-         SubmissionDate = params$SubmissionDate) %>% 
+         submissionDate = params$submissionDate) %>% 
   # Convert time zone 
-  mutate(SubmissionDate = ymd_hms(SubmissionDate),
-         SubmissionDate = as_date(with_tz(SubmissionDate, 
+  mutate(submissionDate = ymd_hms(submissionDate),
+         submissionDate = as_date(with_tz(submissionDate, 
                                           "Africa/Nairobi")),
          duration = round(as.numeric(duration)/60)) %>% 
     arrange(unique_id, consent) %>% 
@@ -140,7 +140,7 @@ df <- raw_data %>%
 ```{r Prepare-OJS-data}
 ojs_data <- df |> 
   select(unique_id, admin_1, admin_2, admin_3, consent, sample_size, Sample,
-         duration, Enumerator, cr_verified, SubmissionDate)
+         duration, Enumerator, cr_verified, submissionDate)
 
 
 geo <- df %>% 
@@ -382,7 +382,7 @@ progressData = aqData
 
 
 progressTable = progressData
-  .groupby('SubmissionDate')
+  .groupby('submissionDate')
   .rollup({
   Submissions: op.count(),
   Consented: d => op.sum(d.consented),
@@ -390,7 +390,7 @@ progressTable = progressData
   Duration: d => op.round(op.average(d.duration))
   })
   .ungroup()
-  .orderby(aq.desc('SubmissionDate'))
+  .orderby(aq.desc('submissionDate'))
   
 sampleSize = progressData
   .params({
@@ -402,7 +402,7 @@ sampleSize = progressData
   .rollup(
   {a: d => op.sum(d.sample)})._data.a[0].toFixed()
 nDailySub = (progressData.numRows() / nDaysIntoDC).toFixed()
-nDaysIntoDC = progressData.groupby('SubmissionDate').count().numRows()
+nDaysIntoDC = progressData.groupby('submissionDate').count().numRows()
 nDaysLeft = nDaysEst - nDaysIntoDC
 nDaysEst = ((nDaysIntoDC * sampleSize)/progressData.numRows()).toFixed()
 
@@ -469,11 +469,11 @@ Days estimated
 ### Main Table {height="70%"}
 
 ```{ojs}
-// 'Submission Date': d => op.format_date(op.parse_ymd(d.SubmissionDate))
+// 'Submission Date': d => op.format_date(op.parse_ymd(d.submissionDate))
 Inputs.table(progressTable, 
   {
     header: {
-        SubmissionDate: "Date"
+        submissionDate: "Date"
   },
   layout: "auto"
   })
@@ -559,14 +559,14 @@ Plot.plot({
   marks: [
     Plot.lineY(
     durData,
-      Plot.binX({ y: "mean" }, { x: (d) => op.parse_ymd(d.SubmissionDate), 
+      Plot.binX({ y: "mean" }, { x: (d) => op.parse_ymd(d.submissionDate), 
       y: (d) => op.round(d.duration), tip: true })
     ),
         Plot.dot(
       durData,
       Plot.binX(
         { y: "mean", stroke: "mean" },
-        { x: (d) => op.parse_ymd(d.SubmissionDate), 
+        { x: (d) => op.parse_ymd(d.submissionDate), 
         y: (d) => op.round(d.duration), 
         stroke: (d) => op.round(d.duration), strokeWidth: 8 }
       )
