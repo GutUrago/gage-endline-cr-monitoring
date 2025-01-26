@@ -8,11 +8,12 @@ editor_options:
   chunk_output_type: console
 params:
   form_id: gage_endline_cr_survey
-  sample_size: "inputs/sample_size.rds"
   submissionDate: SubmissionDate
+  admin_0: list_country
   admin_1: list_region
   admin_2: list_zone
   admin_3: list_woreda
+  admin_4: list_kebele
   unique_id: hhid
   duration: duration
   gps: geo_back
@@ -20,8 +21,6 @@ params:
   consent_yes: 1
   consent_no: 2
 ---
-
-
 
 ```{r Setting-survey-credentials}
 
@@ -32,21 +31,14 @@ local_private_token <- "secrets/key.pem"
 
 ```
 
-
-
-
 ```{r Loading-packages-and-scripts}
 
 library(rsurveycto)
 library(tidyverse)
-library(collapse)
 library(stringdist)
-
 
 source("scripts/variables.R")
 ```
-
-
 
 ```{r Prioritizing-Github-secrets}
 
@@ -79,16 +71,9 @@ if(file.exists(local_scto_token)){
 
 ```
 
-
-
-
-
 ```{r Downloading-the-data}
 
-sample_size <- readRDS(params$sample_size) %>% 
-  rename(admin_1 = params$admin_1,
-         admin_3 = params$admin_3) %>% 
-  mutate(Sample = fsum(sample_size), .by = admin_1)
+samples <- readRDS("inputs/samples.rds")
 
 
 # Avoid downloading for testing locally
@@ -106,9 +91,11 @@ if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
 df <- raw_data %>% 
   # Rename params variables
   rename(unique_id = params$unique_id,
+         admin_0 = params$admin_0,
          admin_1 = params$admin_1,
          admin_2 = params$admin_2,
          admin_3 = params$admin_3,
+         admin_4 = params$admin_4,
          consent = params$consent,
          duration = params$duration,
          submissionDate = params$submissionDate) %>% 
@@ -116,7 +103,8 @@ df <- raw_data %>%
   mutate(submissionDate = ymd_hms(submissionDate),
          submissionDate = as_date(with_tz(submissionDate, 
                                           "Africa/Nairobi")),
-         duration = round(as.numeric(duration)/60)) %>% 
+         duration = round(as.numeric(duration)/60),
+         consent = as.numeric(consent)) %>% 
     arrange(unique_id, consent) %>% 
   # Drop refusal if the same id has consented
   mutate(n = n(), rn = row_number(), .by = unique_id) %>% 
@@ -124,7 +112,6 @@ df <- raw_data %>%
             n > 1 & rn > 1)) %>%
   # Drop duplicates -> another approach can be used to avoid double counting
   distinct(unique_id, .keep_all = TRUE) %>% 
-  left_join(sample_size, by = c("admin_1", "admin_3")) %>% 
   mutate(enumname = str_to_title(
     if_else(cs_enumname == "-96", cs_enumname_x, cs_enumname_name))) %>% 
   mutate(Enumerator = sapply(enumname, function(x) {
@@ -134,44 +121,41 @@ df <- raw_data %>%
 
 ```
 
-
-
-
 ```{r Prepare-OJS-data}
 ojs_data <- df |> 
-  select(unique_id, admin_1, admin_2, admin_3, consent, sample_size, Sample,
-         duration, Enumerator, cr_verified, submissionDate)
+  select(unique_id, admin_0, admin_1, admin_2, admin_3, admin_4,
+         consent, duration, Enumerator, cr_verified, submissionDate) |> 
+  mutate(admin_0 = "Ethiopia")
 
 
 geo <- df %>% 
   separate_wider_delim(params$gps, delim = " ",
-                       names = c("lat", "lng", "other1", "other2"),
+                       names = c("latitude", "longitude", "other1", "other2"),
                        too_few = "align_end") %>% 
-  mutate(across(c(lat, lng), as.numeric),
+  mutate(across(c(latitude, longitude), as.numeric),
          cons_ref = if_else(consent == 1, "Consented", "Refused")) %>% 
-  filter(!(is.na(lat) | is.na(lng))) %>% 
-  mutate(label = str_glue("{admin_1} - {admin_3} - {cons_ref}")) |> 
-  select(admin_1, admin_3, lng, lat, label)
+  filter(!(is.na(latitude) | is.na(longitude))) %>% 
+  mutate(label = str_glue("{admin_1} - {admin_3} - {cons_ref}"),
+         admin_0 = "Ethiopia") |> 
+  select(admin_0, admin_1, admin_2, admin_3, admin_4, latitude, longitude, label)
 
 
 
 ojs_define(geo_data = geo)
 ojs_define(rData = ojs_data)
+ojs_define(samples = samples)
 
 ```
-
-
-
 
 ```{ojs}
 //| output: false
 
 // import arquero library
-import { aq, op } from '@uwdata/arquero'
+import { tidy, groupBy, summarize, sum, distinct, mean, mutate, mutateWithSummary, n, select, filter, leftJoin, arrange, desc, min, max } from '@pbeshai/tidyjs';
 
-// Register necessary functions for arquero
-aq.addFunction('parse_ymd', d3.timeParse('%Y-%m-%d'), { override: true });
-aq.addFunction('format_date', d3.timeFormat("%b %d, %Y"), { override: true })
+
+parseYMD = d3.timeParse('%Y-%m-%d')
+timeFormat = d3.timeFormat("%b %d, %Y")
 
 // Output table formats
 percentFormat = d => d == 100 ? "100%" : d == Infinity ? "100%" : d == 0 ? "0%" : d.toFixed(1) + "%"
@@ -194,93 +178,108 @@ function sparkbar(max) {
 // Data
 data = transpose(rData)
 geoData = transpose(geo_data)
-aqData = aq.from(data)
-```
+sampleData = transpose(samples)
 
+
+// Format variables
+tidyData = tidy(data, mutate({
+  submissionDate: d => parseYMD(d.submissionDate),
+  consented: d => d.consent == 1 ? 1 : 0,
+  refused: d => d.consent == 2 ? 1 : 0}))
+
+
+// Admins
+admins = new Map([
+      ["Country", "admin_0"],
+      ["Region", "admin_1"],
+      ["Zone", "admin_2"],
+      ["Woreda", "admin_3"],
+      ["Kebele", "admin_4"]
+    ])
+```
 
 # Dashboard
 
+## Sidebar {.sidebar width="15%"}
+
+```{ojs}
+viewof dashboardGroupName = Inputs.select(
+    admins,
+    {
+    value: "admin_1",
+    label: "Group by:"
+  }
+  )
+
+viewof dashboardFilterName = Inputs.select(
+    admins,
+    {
+      value: null,
+      label: "Filter by:"
+    })
+    // : html`<p><p>`; => place holder
+
+
+viewof dashboardFilterValue = Inputs.select(
+    tidy(tidyData, groupBy(dashboardFilterName, groupBy.keys())).sort(),
+    {
+      value: null,
+      label: "Keep:"
+    })
+
+```
 
 
 ```{ojs}
 //| output: false
-//| label: Dasboard-figures
-
-dashboardAdmin = ['All'].concat(
-    aqData.rollup({ 
-      a: d => op.array_agg_distinct(d.admin_1) 
-    })._data.a[0].sort())
-
-
-dashboardGroup = dashPickAdmin == "All" ? "admin_1" : "admin_3"
-
-dashboardData = aqData
-  .params({
-  admin: dashPickAdmin,
-  g: dashboardGroup
-  })
-  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
-  .derive({
-    consented: d => d.consent == 1 ? 1 : 0,
-    refused: d => d.consent == 2 ? 1 : 0,
-    sample: (d, $) => $.g == "admin_1" ? d.Sample : d.sample_size,
-    notLocated: d => d.cr_verified == 3 ? 1 : 0
-  })
-
-
-dashboardTable = dashboardData
-  .groupby(dashboardGroup)
-  .rollup({
-    total: d => op.array_agg_distinct(d.sample),
-    submitted: op.count(),
-    submittedPerc: d => op.count() / op.array_agg_distinct(d.sample) * 100 || 0,
-    consented: d => op.sum(d.consented),
-    consentedPerc: d => (op.sum(d.consented) / op.count())*100 || 0,
-    refused: d => op.sum(d.refused),
-    refusedPerc: d => (op.sum(d.refused) / op.count()) * 100 || 0,
-    duration: d => op.round(op.average(d.duration))
-  })
-  .ungroup()
-
-totalSample = dashboardTable.rollup(
-  {a: d => op.sum(d.total)})._data.a[0].toFixed()
-
-submittedSample = d3.sum(dashboardTable, d => d.submitted)
-  
-submittedValue = submittedSample + " (" + ((submittedSample/totalSample) * 100).toFixed(1) + "%)"
-
-consentedSample = d3.sum(dashboardTable, d => d.consented)
-
-consentedValue = consentedSample + " (" + ((consentedSample/submittedSample) * 100).toFixed(1) + "%)"
-
-refusedSample = d3.sum(dashboardTable, d => d.refused)
-
-refusedValue = refusedSample + " (" + ((refusedSample/submittedSample) * 100).toFixed(1) + "%)"
+dashboardSummaryTable = tidy(
+  tidyData,
+  filter(d => d[dashboardFilterName] == dashboardFilterValue),
+  groupBy(dashboardGroupName, [
+    summarize({
+      submitted: n(),
+      consented: sum('consented'),
+      refused: sum('refused'),
+      duration: mean('duration')
+    })
+  ]),
+  mutate({
+    consentedPerc: d => (d.consented / d.submitted) * 100,
+    refusedPerc: d => (d.refused / d.submitted) * 100,
+    duration: d => d.duration.toFixed()
+  }),
+  leftJoin(
+    tidy(
+      sampleData,
+      filter(d => d[dashboardFilterName] == dashboardFilterValue),
+      groupBy(dashboardGroupName, [
+        summarize({
+          total: sum('sampleSize')
+        })
+      ])
+    ),
+    { by: dashboardGroupName }
+  ),
+  mutate({
+    submittedPerc: d => (d.submitted / d.total) * 100
+  }),
+  select([dashboardGroupName, 'total', 'submitted', 'submittedPerc',
+  'consented', 'consentedPerc', 'refused', 'refusedPerc',
+  'duration'])
+);
 
 
-notLocatedSample = d3.sum(dashboardData, d => d.notLocated)
-
-notLocatedValue = notLocatedSample + " (" + ((notLocatedSample/submittedSample) * 100).toFixed(1) + "%)"
-
+totalSample = d3.sum(dashboardSummaryTable, d => d.total)
+submittedSample = d3.sum(dashboardSummaryTable, d => d.submitted)
+submittedValue = submittedSample + 
+  " ("  + ((submittedSample/totalSample)*100).toFixed() + "%)"
+consentedSample = d3.sum(dashboardSummaryTable, d => d.consented)
+consentedValue = consentedSample + 
+  " ("  + ((consentedSample/submittedSample)*100).toFixed() + "%)"
+refusedSample = d3.sum(dashboardSummaryTable, d => d.refused)
+refusedValue = refusedSample + 
+  " ("  + ((refusedSample/submittedSample)*100).toFixed() + "%)"
 ```
-
-## Sidebar {.sidebar width="15%"}
-
-
-
-```{ojs}
-
-viewof dashPickAdmin = Inputs.select(
-  dashboardAdmin,
-  {
-    value: "",
-    label: "Select a Region",
-    unique: true
-  }
-)
-```
-
-
 
 ##  Main display
 
@@ -316,26 +315,19 @@ Refused
 `{ojs} refusedValue`
 :::
 
-::: {.valuebox icon="geo-alt" color="warning"}
-
-Unable to locate
-
-`{ojs} notLocatedValue`
-:::
-
-
-
 
 ### Main Table {height="70%"}
 
-```{ojs}
 
-Inputs.table(dashboardTable, {
-  header: {
+```{ojs}
+Inputs.table(dashboardSummaryTable, {
+  sort: dashboardGroupName,
+    header: {
     admin_0: "Country",
     admin_1: "Region",
     admin_2: "Zone",
     admin_3: "Woreda",
+    admin_4: "Kebele",
     total: "Sample",
     submitted: "Submitted",
     submittedPerc: "Submitted (%)",
@@ -346,94 +338,70 @@ Inputs.table(dashboardTable, {
     duration: "Duration"
   },
   format: {
-  submittedPerc: percentFormat,
-  consentedPerc: percentFormat,
-  refusedPerc: percentFormat
+    submittedPerc: percentFormat,
+    consentedPerc: percentFormat,
+    refusedPerc: percentFormat
   },
   layout: "auto"
-})
+  })
 ```
-
-
-
 
 
 # Progress
 
+## Sidebar {.sidebar width="15%"}
+
+```{ojs}
+viewof progressFilterName = Inputs.select(
+    admins,
+    {
+      value: null,
+      label: "Filter by:"
+    })
+    // : html`<p><p>`; => place holder
+
+
+viewof progressFilterValue = Inputs.select(
+    tidy(tidyData, groupBy(progressFilterName, groupBy.keys())).sort(),
+    {
+      value: null,
+      label: "Keep:"
+    })
+
+```
 
 ```{ojs}
 //| output: false
-//| label: Progress-figures
+progressSummaryTable = tidy(
+  tidyData,
+  filter(d => d[progressFilterName] == progressFilterValue),
+  groupBy('submissionDate', [
+    summarize({
+      submitted: n(),
+      consented: sum('consented'),
+      refused: sum('refused'),
+      duration: mean('duration')
+    })
+  ]),
+  arrange(desc('submissionDate')),
+  mutate({
+    submissionDate: d => timeFormat(d.submissionDate),
+    duration: d => d.duration.toFixed()
+}))
 
-progressGroup = progPickAdmin == "All" ? "admin_1" : "admin_3"
-
-
-progressData = aqData
-  .params({
-  admin: progPickAdmin,
-  g: progressGroup
-  })
-  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
-  .derive({
-    consented: d => d.consent == 1 ? 1 : 0,
-    refused: d => d.consent == 2 ? 1 : 0,
-    sample: (d, $) => $.g == "admin_1" ? d.Sample : d.sample_size
-  })
-
-
-progressTable = progressData
-  .groupby('submissionDate')
-  .rollup({
-  Submissions: op.count(),
-  Consented: d => op.sum(d.consented),
-  Refused: d => op.sum(d.refused),
-  Duration: d => op.round(op.average(d.duration))
-  })
-  .ungroup()
-  .orderby(aq.desc('submissionDate'))
-  
-sampleSize = progressData
-  .params({
-      admin: progPickAdmin
-  })
-  .derive({sampleAdmin: (d, $) => $.admin == "All" ? d.admin_1 : d.admin_3})
-  .select('sampleAdmin', 'sample')
-  .dedupe()
-  .rollup(
-  {a: d => op.sum(d.sample)})._data.a[0].toFixed()
-nDailySub = (progressData.numRows() / nDaysIntoDC).toFixed()
-nDaysIntoDC = progressData.groupby('submissionDate').count().numRows()
-nDaysLeft = nDaysEst - nDaysIntoDC
-nDaysEst = ((nDaysIntoDC * sampleSize)/progressData.numRows()).toFixed()
-
+subSampleSize = tidy(sampleData,
+    filter(d => d[progressFilterName] == progressFilterValue),
+    sum('sampleSize'))
+    
+nDailySub = d3.mean(progressSummaryTable, d => d.submitted).toFixed()
+nDaysIntoDC = progressSummaryTable.length
+nDaysEst = (subSampleSize/nDailySub).toFixed()
+nDaysLeft = (nDaysEst - nDaysIntoDC) >= 0 ? nDaysEst - nDaysIntoDC : 0
 ```
-
-
-## Sidebar {.sidebar width="15%"}
-
-
-
-
-```{ojs}
-viewof progPickAdmin = Inputs.select(
-  dashboardAdmin,
-  {
-    value: "",
-    label: "Select a Region",
-    unique: true
-  }
-)
-```
-
 
 ##  Main display
 
-
-
 ###  Valueboxes {height="30%"}
-
-
-
 
 ::: {.valuebox icon="person-up" color="success"}
 
@@ -463,172 +431,175 @@ Days estimated
 `{ojs} nDaysEst`
 :::
 
-
-
-
 ### Main Table {height="70%"}
 
 ```{ojs}
-// 'Submission Date': d => op.format_date(op.parse_ymd(d.submissionDate))
-Inputs.table(progressTable, 
+Inputs.table(progressSummaryTable, 
   {
     header: {
-        submissionDate: "Date"
+        submissionDate: "Date",
+        submitted: "Submitted",
+        consented: "Consented",
+        refused: "Refused",
+        duration: "Duration"
   },
   layout: "auto"
   })
 ```
 
-
 # Duration
-
 
 ## Sidebar {.sidebar width="15%"}
 
 ```{ojs}
-viewof durPickAdmin = Inputs.select(
-  dashboardAdmin,
-  {
-    value: "",
-    label: "Select a Region",
-    unique: true
+viewof durationGroupName = Inputs.select(
+    admins,
+    {
+    value: "admin_1",
+    label: "Group by:"
   }
-)
-```
+  )
 
+viewof durationFilterName = Inputs.select(
+    admins,
+    {
+      value: null,
+      label: "Filter by:"
+    })
+    // : html`<p><p>`; => place holder
+
+
+viewof durationFilterValue = Inputs.select(
+    tidy(tidyData, groupBy(durationFilterName, groupBy.keys())).sort(),
+    {
+      value: null,
+      label: "Keep:"
+    })
+```
 
 ```{ojs}
 //| output: false
+durationData = tidy(
+  tidyData,
+  filter(d => d[durationFilterName] == durationFilterValue),
+  filter(d => d.consent == 1))
 
-durGroup = durPickAdmin == "All" ? "admin_1" : "admin_3"
-
-
-durData = aqData
-  .params({
-  admin: durPickAdmin
-  })
-  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
-  .filter((d) => d.consent == 1)
-
-
-
-
-durTable = durData
-  .groupby(durGroup)
-  .rollup({
-  Minimum:  d => op.round(op.min(d.duration)),
-  Average: d => op.round(op.average(d.duration)),
-  Maximum: d => op.round(op.max(d.duration))
-})
+durationSummaryTable = tidy(
+  durationData,
+    groupBy(durationGroupName, [
+    summarize({
+      n: n(),
+      min: min('duration'),
+      avg: mean('duration'),
+      max: max('duration')
+    })
+  ])
+)
 
 
 ```
 
-
-
-## Main Table
-
+## Main display
 
 ```{ojs}
 //| title: 'These figures are computed using only consented surveys'
-Inputs.table(durTable, {
+Inputs.table(durationSummaryTable, {
   header: {
     admin_0: "Country",
     admin_1: "Region",
     admin_2: "Zone",
-    admin_3: "Woreda"
-    },
+    admin_3: "Woreda",
+    admin_4: "Kebele",
+    n: "N",
+    min: "Minimum",
+    avg: "Average",
+    max: "Maximum",
+  },
+  format: {
+    avg: d => d.toFixed()
+  },
   layout: "auto"
   })
 ```
 
-
-## Main Table
-
+## Display graph
 
 ```{ojs}
 //| title: 'Average survey duration for consented surveys by submission date'
 
 Plot.plot({
-  y: {label: "Average survey duration (min)", grid: true },
-  x: {label: 'Submission date', grid: true, labelOffset: -5},
+  y: { grid: true },
+  x: { grid: true},
   color: {
     range: ["#3ca951", "#ff725c"]
   },
   style: {fontSize: "12px"},
   marks: [
     Plot.lineY(
-    durData,
-      Plot.binX({ y: "mean" }, { x: (d) => op.parse_ymd(d.submissionDate), 
-      y: (d) => op.round(d.duration), tip: true })
+    durationData,
+      Plot.binX({ y: "mean" }, { x: 'submissionDate', 
+      y: 'duration', tip: true })
     ),
         Plot.dot(
-      durData,
+      durationData,
       Plot.binX(
         { y: "mean", stroke: "mean" },
-        { x: (d) => op.parse_ymd(d.submissionDate), 
-        y: (d) => op.round(d.duration), 
-        stroke: (d) => op.round(d.duration), strokeWidth: 8 }
+        { x: 'submissionDate', 
+        y: 'duration', 
+        stroke: 'duration', strokeWidth: 2 }
       )
     ),
-    Plot.ruleY([30])
+    Plot.ruleY([30]),
+    Plot.frame()
     ]
 })
 ```
 
 
-
 # Enumerators
-
-
 
 ## Sidebar {.sidebar width="15%"}
 
 ```{ojs}
-viewof enumPickAdmin = Inputs.select(
-  dashboardAdmin,
-  {
-    value: "",
-    label: "Select a Region",
-    unique: true
-  }
-)
-```
+viewof enumeratorFilterName = Inputs.select(
+    admins,
+    {
+      value: null,
+      label: "Filter by:"
+    })
+    // : html`<p><p>`; => place holder
 
+
+viewof enumeratorFilterValue = Inputs.select(
+    tidy(tidyData, groupBy(enumeratorFilterName, groupBy.keys())).sort(),
+    {
+      value: null,
+      label: "Keep:"
+    })
+```
 
 ```{ojs}
 //| output: false
 
-
-enumTable = aqData
-  .params({
-  admin: enumPickAdmin
-  })
-  .filter((d, $) => $.admin == "All" ? true : op.includes($.admin, d.admin_1))
-  .derive({
-    consented: d => d.consent == 1 ? 1 : 0,
-    refused: d => d.consent == 2 ? 1 : 0,
-  })
-  .groupby('Enumerator')
-  .rollup({
-  Submitted: d => op.count(),
-  Consented: d => op.sum(d.consented),
-  Refused: d => op.sum(d.refused),
-  'Min. Duration':  d => op.round(op.min(d.duration)),
-  'Avg. Duration': d => op.round(op.average(d.duration)),
-  'Max. Duration': d => op.round(op.max(d.duration))
-})
-
-
+enumeratorSummaryTable = tidy(
+  tidyData,
+  filter(d => d[enumeratorFilterName] == enumeratorFilterValue),
+  groupBy('Enumerator', [
+    summarize({
+      Submitted: n(),
+      Consented: sum('consented'),
+      Refused: sum('refused'),
+      'Min. Duration':  min('duration'),
+      'Avg. Duration': mean('duration'),
+      'Max. Duration': max('duration')
+    })
+  ]))
 ```
-
-
 
 ## Main Table
 
-
 ```{ojs}
-Inputs.table(enumTable, {
+Inputs.table(enumeratorSummaryTable, {
   header: {
     admin_0: "Country",
     admin_1: "Region",
@@ -637,48 +608,48 @@ Inputs.table(enumTable, {
     },
   layout: "auto",
   format: {
-  Submitted: sparkbar(d3.max(enumTable, d => d.Submitted))
-}
+  Submitted: sparkbar(d3.max(enumeratorSummaryTable, d => d.Submitted)),
+  'Avg. Duration': d => d.toFixed()
+  },
+  layout: "auto"
   })
 ```
 
 
-
-
 # Map
 
-## Sidebar {.sidebar}
-
-
-```{ojs}
-
-viewof pickMapAdmin = Inputs.select(
-    d3.group(d3.sort(geoData, d => d.admin_1), d => d.admin_1),
-    {
-    value: "",
-    label: "Select a Region"
-}
-)
-```
-
-
+## Sidebar {.sidebar width="15%"}
 
 ```{ojs}
-viewof pickMapAdmin3 = Inputs.select(
-    d3.group(d3.sort(pickMapAdmin, d => d.admin_3), d => d.admin_3),
+
+viewof mapFilterName = Inputs.select(
+    admins,
     {
-    value: "",
-    label: "Select a Woreda"
-}
-)
+      value: "admin_3",
+      label: "Filter by:"
+    })
+    // : html`<p><p>`; => place holder
+
+
+viewof mapFilterValue = Inputs.select(
+    tidy(geoData, groupBy(mapFilterName, groupBy.keys())).sort(),
+    {
+      value: null,
+      label: "Keep:"
+    })
+
+
+html`<br><br><h6>Note:</h6> <ul>Hover over the mapmarkers to see details.</ul>`
 ```
-
-
-
 
 ## Main content
 
 ```{ojs}
+mapData = tidy(
+  geoData,
+  filter(d => d[mapFilterName] == mapFilterValue))
+  
+  
 L = {
   const L = await require("leaflet@1/dist/leaflet.js");
   if (!L._style) {
@@ -687,7 +658,6 @@ L = {
   }
   return L;
 }
-
 
 map = {
   let container = DOM.element('div', { 
@@ -700,8 +670,8 @@ map = {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
   
-   pickMapAdmin3.forEach(row => {
-    L.marker([row.lat, row.lng])
+   mapData.forEach(row => {
+    L.marker([row.latitude, row.longitude])
       .addTo(map)
       .bindTooltip(row.label, { permanent: false, direction: "top" });
   });
