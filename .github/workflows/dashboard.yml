@@ -12,8 +12,6 @@ jobs:
   publish-dashboard:
     runs-on: ubuntu-latest
     env:
-      GSHEET_TOKEN: ${{ secrets.GSHEET_TOKEN }}
-      PRIVATE_TOKEN: ${{ secrets.PRIVATE_TOKEN }}
       SCTO_TOKEN: ${{ secrets.SCTO_TOKEN }}
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
     steps:
@@ -25,16 +23,7 @@ jobs:
         with:
           packages: |
             any::tidyverse
-            any::collapse
-            any::googlesheets4
             any::rsurveycto
-            any::rlang
-            any::checkmate
-            any::glue
-            any::leaflet
-            any::DT
-            any::janitor
-            any::gt
             any::stringdist
 
       - name: Set up Quarto

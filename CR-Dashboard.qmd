@@ -604,7 +604,6 @@ viewof mapFilterValue = Inputs.select(
     })
 
 
-html`<br><br><h6>Note:</h6> <ul>Hover over the mapmarkers to see details.</ul>`
 ```
 
 ## Main content
