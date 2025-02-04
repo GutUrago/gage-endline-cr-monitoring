@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GSHEET_TOKEN: ${{ secrets.GSHEET_TOKEN }}
-      SCTO_TOKEN: ${{ secrets.SCTO_TOKEN }}
       PRIVATE_TOKEN: ${{ secrets.PRIVATE_TOKEN }}
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
     steps:
@@ -42,6 +41,10 @@ jobs:
 
       - name: Check out repository
         uses: actions/checkout@v3
+        
+      - name: make scto secrets ready
+        run: echo -e "${{ secrets.SCTO_TOKEN }}" > scto_token.txt
+        run: Rscript -e 'SCTO_AUTH <- "scto_token.txt"'
         
       - name: Render and Publish to Netlify
         uses: quarto-dev/quarto-actions/publish@v2
