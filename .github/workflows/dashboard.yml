@@ -46,7 +46,7 @@ jobs:
       - name: make scto secrets ready
         run: |
           echo -e "${{ secrets.SCTO_TOKEN }}" > scto_token.txt
-          Rscript -e 'SCTO_AUTH <- "scto_token.txt"'
+          echo "SCTO_AUTH=scto_token.txt" >> $GITHUB_ENV
         
       - name: Render and Publish to Netlify
         uses: quarto-dev/quarto-actions/publish@v2

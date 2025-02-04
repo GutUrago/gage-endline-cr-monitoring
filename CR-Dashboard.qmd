@@ -47,7 +47,7 @@ if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
 } else if(!exists("raw_data")) {
   
   raw_data <- scto_read(
-    auth = scto_auth(SCTO_AUTH),
+    auth = scto_auth(Sys.getenv("SCTO_AUTH")),
     ids = params$form_id
   )
 }
