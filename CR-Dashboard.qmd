@@ -46,8 +46,14 @@ if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
   raw_data <- readRDS("secrets/raw_data.rds")
 } else if(!exists("raw_data")) {
   
+  temp_file <- file.path(tempdir(), "SCTO_TOKEN.txt")
+  
+  write_file(Sys.getenv('SCTO_TOKEN'), temp_file)
+    Sys.sleep(3)
+    SCTO_TOKEN <- temp_file
+  
   raw_data <- scto_read(
-    auth = scto_auth(Sys.getenv("SCTO_PASS")),
+    auth = scto_auth(SCTO_TOKEN),
     ids = params$form_id
   )
 }
