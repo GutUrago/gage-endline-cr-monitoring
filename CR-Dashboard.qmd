@@ -45,11 +45,9 @@ samples <- readRDS("inputs/samples.rds")
 if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
   raw_data <- readRDS("secrets/raw_data.rds")
 } else if(!exists("raw_data")) {
-  scto_auth <- scto_auth(servername = "laterite", 
-                   username = "gurago@laterite.com", 
-                   password = Sys.getenv("SCTO_PASS"))
+  
   raw_data <- scto_read(
-    auth = scto_auth,
+    auth = scto_auth(Sys.getenv("SCTO_PASS")),
     ids = params$form_id
   )
 }
