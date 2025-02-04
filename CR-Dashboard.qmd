@@ -22,14 +22,6 @@ params:
   consent_no: 2
 ---
 
-```{r Setting-survey-credentials}
-
-# Set local file paths for testing locally
-local_gs_token <- "secrets/monitoring-446409-c6231994c3cd.json"
-local_scto_token <- "secrets/scto_auth.txt"
-local_private_token <- "secrets/key.pem"
-
-```
 
 ```{r Loading-packages-and-scripts}
 
@@ -38,38 +30,11 @@ library(tidyverse)
 library(stringdist)
 
 source("scripts/variables.R")
+
+current_time <- Sys.time()
+converted_time <- format(current_time, tz = "Africa/Addis_Ababa", usetz = TRUE)
 ```
 
-```{r Prioritizing-Github-secrets}
-
-# Replace credentials with github tokens
-if(file.exists(local_gs_token)){
-  GSHEET_TOKEN <- local_gs_token
-  } else {
-    GSHEET_TOKEN <- Sys.getenv('GSHEET_TOKEN')
-    }
-
-
-if(file.exists(local_private_token)){
-  PRIVATE_TOKEN <- local_private_token
-  } else {
-    token_text <- Sys.getenv('PRIVATE_TOKEN')
-    write_file(token_text, "PRIVATE_TOKEN.pem")
-    Sys.sleep(3)
-    PRIVATE_TOKEN <- "PRIVATE_TOKEN.pem"
-  }
-
-
-if(file.exists(local_scto_token)){
-  SCTO_TOKEN <- local_scto_token
-  } else {
-    token_text <- Sys.getenv('SCTO_TOKEN')
-    write_file(token_text, "SCTO_TOKEN.txt")
-    Sys.sleep(3)
-    SCTO_TOKEN <- "SCTO_TOKEN.txt"
-  }
-
-```
 
 ```{r Downloading-the-data}
 
@@ -81,9 +46,10 @@ if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
   raw_data <- readRDS("secrets/raw_data.rds")
 } else if(!exists("raw_data")) {
     raw_data <- scto_read(
-  auth = scto_auth(SCTO_TOKEN),
-  ids = params$form_id,
-  private_key = PRIVATE_TOKEN
+  auth = scto_auth(servername = "laterite", 
+                   username = "gurago@laterite.com", 
+                   password = Sys.getenv("SCTO_PASS")),
+  ids = params$form_id
   )
 }
 
@@ -135,7 +101,7 @@ geo <- df %>%
   mutate(across(c(latitude, longitude), as.numeric),
          cons_ref = if_else(consent == 1, "Consented", "Refused")) %>% 
   filter(!(is.na(latitude) | is.na(longitude))) %>% 
-  mutate(label = str_glue("{admin_1} - {admin_3} - {cons_ref}"),
+  mutate(label = str_glue("{unique_id} - {cons_ref}"),
          admin_0 = "Ethiopia") |> 
   select(admin_0, admin_1, admin_2, admin_3, admin_4, latitude, longitude, label)
 
