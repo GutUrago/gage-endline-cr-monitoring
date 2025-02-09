@@ -42,6 +42,7 @@ samples <- readRDS("inputs/samples.rds")
 
 
 # Avoid downloading for testing locally
+# Modify this data to only OJS variables
 if(!exists("raw_data") & file.exists("secrets/raw_data.rds")){
   raw_data <- readRDS("secrets/raw_data.rds")
 } else if(!exists("raw_data")) {
@@ -642,4 +643,54 @@ map = {
 }
 
 ```
+
+
+# Test
+
+```{=html}
+<button id="run-button">Run</button>
+<p id="status"></p>
+```
+
+```{=javascript}
+  const button = document.getElementById("run-button");
+  const statusText = document.getElementById("status");
+  const cooldownKey = "lastRunTimestamp";
+  const cooldownPeriod = 60 * 60 * 1000; // 1 hour in milliseconds
+
+  function canRun() {
+    const lastRun = localStorage.getItem(cooldownKey);
+    return !lastRun || (Date.now() - lastRun) > cooldownPeriod;
+  }
+
+  function triggerGitHubAction() {
+    if (!canRun()) {
+      statusText.textContent = "You must wait an hour before running again.";
+      return;
+    }
+
+    button.disabled = true;
+    statusText.textContent = "Triggering action...";
+
+    fetch("/.netlify/functions/trigger-github", { method: "POST" })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message.includes("success")) {
+          localStorage.setItem(cooldownKey, Date.now());
+          statusText.textContent = "Run triggered successfully!";
+        } else {
+          throw new Error("Failed to trigger action");
+        }
+      })
+      .catch(error => {
+        statusText.textContent = "Error: " + error.message;
+      })
+      .finally(() => {
+        button.disabled = false;
+      });
+  }
+
+  button.addEventListener("click", triggerGitHubAction);
+```
+
 
