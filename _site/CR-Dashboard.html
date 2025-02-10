@@ -117,7 +117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
       </div>
     </div>
-<div id="dashboard-collapse" class="navbar-collapse collapse"><ul class="navbar-nav navbar-nav-scroll me-auto" role="tablist"><li class="nav-item" role="presentation"><a id="tab-dashboard" class="nav-link active" data-bs-toggle="tab" role="tab" data-bs-target="#dashboard" data-scrolling="false" href="#dashboard" aria-controls="dashboard" aria-selected="true"><span class="nav-link-text">Dashboard</span></a></li><li class="nav-item" role="presentation"><a id="tab-progress" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#progress" data-scrolling="false" href="#progress" aria-controls="progress" aria-selected="false"><span class="nav-link-text">Progress</span></a></li><li class="nav-item" role="presentation"><a id="tab-duration" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#duration" data-scrolling="false" href="#duration" aria-controls="duration" aria-selected="false"><span class="nav-link-text">Duration</span></a></li><li class="nav-item" role="presentation"><a id="tab-enumerators" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#enumerators" data-scrolling="false" href="#enumerators" aria-controls="enumerators" aria-selected="false"><span class="nav-link-text">Enumerators</span></a></li><li class="nav-item" role="presentation"><a id="tab-map" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#map" data-scrolling="false" href="#map" aria-controls="map" aria-selected="false"><span class="nav-link-text">Map</span></a></li><li class="nav-item" role="presentation"><a id="tab-test" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#test" data-scrolling="false" href="#test" aria-controls="test" aria-selected="false"><span class="nav-link-text">Test</span></a></li></ul></div></div>
+<div id="dashboard-collapse" class="navbar-collapse collapse"><ul class="navbar-nav navbar-nav-scroll me-auto" role="tablist"><li class="nav-item" role="presentation"><a id="tab-dashboard" class="nav-link active" data-bs-toggle="tab" role="tab" data-bs-target="#dashboard" data-scrolling="false" href="#dashboard" aria-controls="dashboard" aria-selected="true"><span class="nav-link-text">Dashboard</span></a></li><li class="nav-item" role="presentation"><a id="tab-progress" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#progress" data-scrolling="false" href="#progress" aria-controls="progress" aria-selected="false"><span class="nav-link-text">Progress</span></a></li><li class="nav-item" role="presentation"><a id="tab-duration" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#duration" data-scrolling="false" href="#duration" aria-controls="duration" aria-selected="false"><span class="nav-link-text">Duration</span></a></li><li class="nav-item" role="presentation"><a id="tab-enumerators" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#enumerators" data-scrolling="false" href="#enumerators" aria-controls="enumerators" aria-selected="false"><span class="nav-link-text">Enumerators</span></a></li><li class="nav-item" role="presentation"><a id="tab-map" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#map" data-scrolling="false" href="#map" aria-controls="map" aria-selected="false"><span class="nav-link-text">Map</span></a></li></ul></div></div>
 </nav>
 </header>
 <div class="page-layout-custom quarto-dashboard-content bslib-gap-spacing html-fill-container bslib-page-fill quarto-dashboard-pages">  
@@ -1002,37 +1002,37 @@ grid-auto-rows: minmax(0, 1fr);">
 <div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
 <div class="card cell html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
 <div class="card-body html-fill-item html-fill-container">
-<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb16" data-startfrom="613" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 612;"><span id="cb16-613"><a href="#cb16-613" aria-hidden="true" tabindex="-1"></a>mapData <span class="op">=</span> <span class="fu">tidy</span>(</span>
-<span id="cb16-614"><a href="#cb16-614" aria-hidden="true" tabindex="-1"></a>  geoData<span class="op">,</span></span>
-<span id="cb16-615"><a href="#cb16-615" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(d <span class="kw">=&gt;</span> d[mapFilterName] <span class="op">==</span> mapFilterValue))</span>
-<span id="cb16-616"><a href="#cb16-616" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-617"><a href="#cb16-617" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-618"><a href="#cb16-618" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> {</span>
-<span id="cb16-619"><a href="#cb16-619" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> L <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"leaflet@1/dist/leaflet.js"</span>)<span class="op">;</span></span>
-<span id="cb16-620"><a href="#cb16-620" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>L<span class="op">.</span><span class="at">_style</span>) {</span>
-<span id="cb16-621"><a href="#cb16-621" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> href <span class="op">=</span> <span class="cf">await</span> require<span class="op">.</span><span class="fu">resolve</span>(<span class="st">"leaflet@1/dist/leaflet.css"</span>)<span class="op">;</span></span>
-<span id="cb16-622"><a href="#cb16-622" aria-hidden="true" tabindex="-1"></a>    <span class="bu">document</span><span class="op">.</span><span class="at">head</span><span class="op">.</span><span class="fu">appendChild</span>(L<span class="op">.</span><span class="at">_style</span> <span class="op">=</span> <span class="fu">html</span><span class="vs">`&lt;link href=</span><span class="sc">${</span>href<span class="sc">}</span><span class="vs"> rel=stylesheet&gt;`</span>)<span class="op">;</span></span>
-<span id="cb16-623"><a href="#cb16-623" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb16-624"><a href="#cb16-624" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> L<span class="op">;</span></span>
-<span id="cb16-625"><a href="#cb16-625" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb16-626"><a href="#cb16-626" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-627"><a href="#cb16-627" aria-hidden="true" tabindex="-1"></a>map <span class="op">=</span> {</span>
-<span id="cb16-628"><a href="#cb16-628" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> container <span class="op">=</span> DOM<span class="op">.</span><span class="fu">element</span>(<span class="st">'div'</span><span class="op">,</span> { </span>
-<span id="cb16-629"><a href="#cb16-629" aria-hidden="true" tabindex="-1"></a>  <span class="dt">style</span><span class="op">:</span> <span class="vs">`width:</span><span class="sc">${</span>width<span class="sc">}</span><span class="vs">px;height:</span><span class="sc">${</span>width<span class="op">/</span><span class="fl">1.6</span><span class="sc">}</span><span class="vs">px`</span> })<span class="op">;</span></span>
-<span id="cb16-630"><a href="#cb16-630" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-631"><a href="#cb16-631" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> container<span class="op">;</span></span>
-<span id="cb16-632"><a href="#cb16-632" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-633"><a href="#cb16-633" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> map <span class="op">=</span> L<span class="op">.</span><span class="fu">map</span>(container)<span class="op">.</span><span class="fu">setView</span>([<span class="fl">9.5</span><span class="op">,</span> <span class="dv">40</span>]<span class="op">,</span> <span class="fl">6.5</span>)<span class="op">;</span></span>
-<span id="cb16-634"><a href="#cb16-634" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> osmLayer <span class="op">=</span> L<span class="op">.</span><span class="fu">tileLayer</span>(<span class="st">'https://tile.openstreetmap.org/{z}/{x}/{y}.png'</span><span class="op">,</span> {</span>
-<span id="cb16-635"><a href="#cb16-635" aria-hidden="true" tabindex="-1"></a>      <span class="dt">attribution</span><span class="op">:</span> <span class="st">'&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright"&gt;OpenStreetMap&lt;/a&gt; contributors'</span></span>
-<span id="cb16-636"><a href="#cb16-636" aria-hidden="true" tabindex="-1"></a>  })<span class="op">.</span><span class="fu">addTo</span>(map)<span class="op">;</span></span>
-<span id="cb16-637"><a href="#cb16-637" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb16-638"><a href="#cb16-638" aria-hidden="true" tabindex="-1"></a>   mapData<span class="op">.</span><span class="fu">forEach</span>(row <span class="kw">=&gt;</span> {</span>
-<span id="cb16-639"><a href="#cb16-639" aria-hidden="true" tabindex="-1"></a>    L<span class="op">.</span><span class="fu">marker</span>([row<span class="op">.</span><span class="at">latitude</span><span class="op">,</span> row<span class="op">.</span><span class="at">longitude</span>])</span>
-<span id="cb16-640"><a href="#cb16-640" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">addTo</span>(map)</span>
-<span id="cb16-641"><a href="#cb16-641" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">bindTooltip</span>(row<span class="op">.</span><span class="at">label</span><span class="op">,</span> { <span class="dt">permanent</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">direction</span><span class="op">:</span> <span class="st">"top"</span> })<span class="op">;</span></span>
-<span id="cb16-642"><a href="#cb16-642" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
-<span id="cb16-643"><a href="#cb16-643" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden html-fill-item html-fill-container" id="cb16" data-startfrom="619" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 618;"><span id="cb16-619"><a href="#cb16-619" aria-hidden="true" tabindex="-1"></a>mapData <span class="op">=</span> <span class="fu">tidy</span>(</span>
+<span id="cb16-620"><a href="#cb16-620" aria-hidden="true" tabindex="-1"></a>  geoData<span class="op">,</span></span>
+<span id="cb16-621"><a href="#cb16-621" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(d <span class="kw">=&gt;</span> d[mapFilterName] <span class="op">==</span> mapFilterValue))</span>
+<span id="cb16-622"><a href="#cb16-622" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-623"><a href="#cb16-623" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-624"><a href="#cb16-624" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> {</span>
+<span id="cb16-625"><a href="#cb16-625" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> L <span class="op">=</span> <span class="cf">await</span> <span class="pp">require</span>(<span class="st">"leaflet@1/dist/leaflet.js"</span>)<span class="op">;</span></span>
+<span id="cb16-626"><a href="#cb16-626" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>L<span class="op">.</span><span class="at">_style</span>) {</span>
+<span id="cb16-627"><a href="#cb16-627" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> href <span class="op">=</span> <span class="cf">await</span> require<span class="op">.</span><span class="fu">resolve</span>(<span class="st">"leaflet@1/dist/leaflet.css"</span>)<span class="op">;</span></span>
+<span id="cb16-628"><a href="#cb16-628" aria-hidden="true" tabindex="-1"></a>    <span class="bu">document</span><span class="op">.</span><span class="at">head</span><span class="op">.</span><span class="fu">appendChild</span>(L<span class="op">.</span><span class="at">_style</span> <span class="op">=</span> <span class="fu">html</span><span class="vs">`&lt;link href=</span><span class="sc">${</span>href<span class="sc">}</span><span class="vs"> rel=stylesheet&gt;`</span>)<span class="op">;</span></span>
+<span id="cb16-629"><a href="#cb16-629" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-630"><a href="#cb16-630" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> L<span class="op">;</span></span>
+<span id="cb16-631"><a href="#cb16-631" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-632"><a href="#cb16-632" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-633"><a href="#cb16-633" aria-hidden="true" tabindex="-1"></a>map <span class="op">=</span> {</span>
+<span id="cb16-634"><a href="#cb16-634" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> container <span class="op">=</span> DOM<span class="op">.</span><span class="fu">element</span>(<span class="st">'div'</span><span class="op">,</span> { </span>
+<span id="cb16-635"><a href="#cb16-635" aria-hidden="true" tabindex="-1"></a>  <span class="dt">style</span><span class="op">:</span> <span class="vs">`width:</span><span class="sc">${</span>width<span class="sc">}</span><span class="vs">px;height:</span><span class="sc">${</span>width<span class="op">/</span><span class="fl">1.6</span><span class="sc">}</span><span class="vs">px`</span> })<span class="op">;</span></span>
+<span id="cb16-636"><a href="#cb16-636" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-637"><a href="#cb16-637" aria-hidden="true" tabindex="-1"></a>  <span class="kw">yield</span> container<span class="op">;</span></span>
+<span id="cb16-638"><a href="#cb16-638" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-639"><a href="#cb16-639" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> map <span class="op">=</span> L<span class="op">.</span><span class="fu">map</span>(container)<span class="op">.</span><span class="fu">setView</span>([<span class="fl">9.5</span><span class="op">,</span> <span class="dv">40</span>]<span class="op">,</span> <span class="fl">6.5</span>)<span class="op">;</span></span>
+<span id="cb16-640"><a href="#cb16-640" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> osmLayer <span class="op">=</span> L<span class="op">.</span><span class="fu">tileLayer</span>(<span class="st">'https://tile.openstreetmap.org/{z}/{x}/{y}.png'</span><span class="op">,</span> {</span>
+<span id="cb16-641"><a href="#cb16-641" aria-hidden="true" tabindex="-1"></a>      <span class="dt">attribution</span><span class="op">:</span> <span class="st">'&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright"&gt;OpenStreetMap&lt;/a&gt; contributors'</span></span>
+<span id="cb16-642"><a href="#cb16-642" aria-hidden="true" tabindex="-1"></a>  })<span class="op">.</span><span class="fu">addTo</span>(map)<span class="op">;</span></span>
+<span id="cb16-643"><a href="#cb16-643" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-644"><a href="#cb16-644" aria-hidden="true" tabindex="-1"></a>   mapData<span class="op">.</span><span class="fu">forEach</span>(row <span class="kw">=&gt;</span> {</span>
+<span id="cb16-645"><a href="#cb16-645" aria-hidden="true" tabindex="-1"></a>    L<span class="op">.</span><span class="fu">marker</span>([row<span class="op">.</span><span class="at">latitude</span><span class="op">,</span> row<span class="op">.</span><span class="at">longitude</span>])</span>
+<span id="cb16-646"><a href="#cb16-646" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">addTo</span>(map)</span>
+<span id="cb16-647"><a href="#cb16-647" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="fu">bindTooltip</span>(row<span class="op">.</span><span class="at">label</span><span class="op">,</span> { <span class="dt">permanent</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">direction</span><span class="op">:</span> <span class="st">"top"</span> })<span class="op">;</span></span>
+<span id="cb16-648"><a href="#cb16-648" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb16-649"><a href="#cb16-649" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display html-fill-item html-fill-container">
 <div class="html-fill-item html-fill-container">
 <div id="ojs-cell-16-1" data-nodetype="declaration" class="html-fill-item html-fill-container">
@@ -1061,6 +1061,9 @@ grid-auto-rows: minmax(0, 1fr);">
         <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
     </span>
 </bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+<div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden html-fill-item html-fill-container">
+
+</div>
 </div>
 </div>
 </div></div><aside id="bslib-sidebar-5" class="sidebar html-fill-container html-fill-item"><div class="html-fill-item html-fill-container">
@@ -1093,6 +1096,7 @@ grid-auto-rows: minmax(0, 1fr);">
 </div>
 </div>
 </div>
+<h5>Note:</h5> <p>Your browser may not appreciate filtering by higher admin levels such as country and region</p>
 </div></aside>
 <button class="collapse-toggle" type="button" title="Toggle sidebar" aria-expanded="true" aria-controls="bslib-sidebar-5">
     <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 16 16" class="bi bi-chevron-left collapse-icon" style="fill:currentColor;" aria-hidden="true" role="img">
@@ -1102,64 +1106,6 @@ grid-auto-rows: minmax(0, 1fr);">
 <script data-bslib-sidebar-init="">
 bslib.Sidebar.initCollapsibleAll()
 </script>
-</div>
-</div>
-<div id="test" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-test">
-<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, max-content); grid-auto-columns: minmax(0, 1fr);">
-<div class="card html-fill-item html-fill-container bslib-card" data-fill="false" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
-<div class="cell card-body html-fill-item html-fill-container">
-<script>
-  const button = document.getElementById("run-button");
-  const statusText = document.getElementById("status");
-  const cooldownKey = "lastRunTimestamp";
-  const cooldownPeriod = 60 * 60 * 1000; // 1 hour in milliseconds
-
-  function canRun() {
-    const lastRun = localStorage.getItem(cooldownKey);
-    return !lastRun || (Date.now() - lastRun) > cooldownPeriod;
-  }
-
-  function triggerGitHubAction() {
-    if (!canRun()) {
-      statusText.textContent = "You must wait an hour before running again.";
-      return;
-    }
-
-    button.disabled = true;
-    statusText.textContent = "Triggering action...";
-
-    fetch("/.netlify/functions/trigger-github", { method: "POST" })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message.includes("success")) {
-          localStorage.setItem(cooldownKey, Date.now());
-          statusText.textContent = "Run triggered successfully!";
-        } else {
-          throw new Error("Failed to trigger action");
-        }
-      })
-      .catch(error => {
-        statusText.textContent = "Error: " + error.message;
-      })
-      .finally(() => {
-        button.disabled = false;
-      });
-  }
-
-  button.addEventListener("click", triggerGitHubAction);
-</script>
-<button id="run-button">Run</button>
-<p id="status"></p>
-</div>
-<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
-    <template>Expand</template>
-    <span class="bslib-full-screen-enter badge rounded-pill">
-        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
-    </span>
-</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
-<div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden html-fill-item html-fill-container">
-
-</div>
 </div>
 </div>
 </div>
